@@ -61,7 +61,7 @@ var merge = function (cluster, newTweet) {
         ) / (oldWeight + newWeight);
 
     // track tweet
-    cluster.tweets.add(newTweet);
+    cluster.tweets.push(newTweet);
 
     // see if the cluster is big enough to become a mob
     cluster.isMob = numTweets + 1 > mobSizeThreshold;
@@ -94,7 +94,7 @@ exports.startPokeMobDetection = function (stream, onMob, onError) {
             if (clusters.hasOwnProperty(clusterId)) {
                 if (now - clusters[clusterId].timestamp > maxClusterAge){
                     delete clusters[clusterId];
-                    console.log()
+                    console.log("Deleted cluster " + clusterId + " due to time expiration.");
                 }
             }
         }
@@ -113,12 +113,13 @@ exports.startPokeMobDetection = function (stream, onMob, onError) {
                 var cluster = clusters[clusterId];
                 var dist = haversineDistance(cluster.coordinates.coordinates, newTweet.coordinates.coordinates);
                 if (dist < maxDistanceThreshold){
+                    console.log("Merging tweet with cluster " + clusterId +"!");
                     cluster = merge(cluster, newTweet);  // TODO: we need to incorporate number of users (one person should not be a mob)
                     clusters[clusterId] = cluster;
                     if(cluster.isMob){ // TODO maybe only notify once, then notify on location change?
                         onMob(cluster);
                     }
-                    console.log("Merged tweet with cluster " + clusterId);
+
                     return;
                 }
             }
