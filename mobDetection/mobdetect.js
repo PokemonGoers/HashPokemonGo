@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Created by dowling on 28/08/16.
  */
@@ -10,13 +11,13 @@ if (Number.prototype.toRadians === undefined) {
 }
 
 // minimum number of close-by tweets in a cluster required for it to become a mob
-mobSizeThreshold = 8;  // TODO figure out a reasonable minimum mob size
+var mobSizeThreshold = 8;  // TODO figure out a reasonable minimum mob size
 
 // maximum number of seconds that can pass between two tweets in a cluster before the cluster is deleted again
-maxClusterAge = 5 * 60; // seconds
+var maxClusterAge = 5 * 60; // seconds
 
 // max number of meters between two tweets for them to be in the same cluster
-maxDistanceThreshold = 300;
+var maxDistanceThreshold = 300;
 
 var haversineDistance = function(coords1, coords2){
     // haversine distance function, gives number of meters between two points
@@ -43,7 +44,13 @@ var haversineDistance = function(coords1, coords2){
 };
 
 var merge = function (cluster, newTweet) {
-    var numTweets = cluster.tweets.length;
+    var tweeters = [];
+    for (var tweet in cluster.tweets){
+        if (tweeters.indexOf(tweet.user.screen_name) != 1){
+            tweeters.push(tweet.user.screen_name);
+        }
+    }
+    var numTweeters = tweeters.length;
 
     // update timestamp
     cluster.timestamp = newTweet.timestamp;
@@ -64,7 +71,7 @@ var merge = function (cluster, newTweet) {
     cluster.tweets.push(newTweet);
 
     // see if the cluster is big enough to become a mob
-    cluster.isMob = numTweets + 1 > mobSizeThreshold;
+    cluster.isMob = numTweeters + 1 > mobSizeThreshold;
 
     return cluster;
 };
@@ -86,7 +93,7 @@ exports.startPokeMobDetection = function (stream, onMob, onError) {
         if (tweet.coordinates == null){
             return;
         }
-        console.log("Got geotagged tweet (" + tweet.text + ") (" + tweet.coordinates.coordinates +")!");
+
         var now = Math.floor(Date.now() / 1000);
 
         // clear out expired clusters
@@ -99,11 +106,15 @@ exports.startPokeMobDetection = function (stream, onMob, onError) {
             }
         }
 
+
+        var coordsFormatted = "" + tweet.coordinates.coordinates[1] + ", " + tweet.coordinates.coordinates[0];
+        console.log("Got geotagged tweet (" + tweet.text.replace("\n", " ") + ") (" + coordsFormatted +")!");
+
         // simplify tweet format
         var newTweet = {
             id: tweet.id_str,
             text: tweet.text,
-            coordinates: tweet.coordinates,
+            coordinates: tweet.coordinates.coordinates,
             timestamp: getTimestamp(tweet.created_at)
         };
 
@@ -111,7 +122,7 @@ exports.startPokeMobDetection = function (stream, onMob, onError) {
         for (clusterId in clusters){
             if (clusters.hasOwnProperty(clusterId)){
                 var cluster = clusters[clusterId];
-                var dist = haversineDistance(cluster.coordinates.coordinates, newTweet.coordinates.coordinates);
+                var dist = haversineDistance(cluster.coordinates, newTweet.coordinates);
                 if (dist < maxDistanceThreshold){
                     console.log("Merging tweet with cluster " + clusterId +"!");
                     cluster = merge(cluster, newTweet);  // TODO: we need to incorporate number of users (one person should not be a mob)
