@@ -50,7 +50,7 @@ var merge = function (cluster, newTweet) {
             tweeters.push(tweet.user.screen_name);
         }
     }
-    var numTweets = tweeters.length;
+    var numTweeters = tweeters.length;
 
     // update timestamp
     cluster.timestamp = newTweet.timestamp;
@@ -71,7 +71,7 @@ var merge = function (cluster, newTweet) {
     cluster.tweets.push(newTweet);
 
     // see if the cluster is big enough to become a mob
-    cluster.isMob = numTweets + 1 > mobSizeThreshold;  // todo maybe track number of users, not number of tweets
+    cluster.isMob = numTweeters + 1 > mobSizeThreshold;
 
     return cluster;
 };
@@ -105,6 +105,7 @@ exports.startPokeMobDetection = function (stream, onMob, onError) {
                 }
             }
         }
+
 
         var coordsFormatted = "" + tweet.coordinates.coordinates[1] + ", " + tweet.coordinates.coordinates[0];
         console.log("Got geotagged tweet (" + tweet.text.replace("\n", " ") + ") (" + coordsFormatted +")!");
