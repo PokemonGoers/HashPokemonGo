@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test HashPokemonGo Websockets</title>
+</head>
+<body>
+<!--script src="/socket.io/socket.io.js"></script-->
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+    var socket = io('http://localhost:3000/mobs/all');
+    socket.on('mob', function (data) {
+        console.log("Mob spotted!", data);
+    });
+
+    socket.on('cluster', function (data) {
+        console.log("New cluster: ", data);
+    });
+</script>
+</body>
+</html>

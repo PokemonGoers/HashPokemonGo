@@ -3,6 +3,7 @@
  * Created by dowling on 28/08/16.
  */
 var moment = require('moment');
+var io = require('socket.io')(3000);
 
 /** Extend Number object with method to convert numeric degrees to radians */
 //via http://www.movable-type.co.uk/scripts/latlong.html
@@ -83,9 +84,39 @@ var getTimestamp = function(createdAtStr){
     return timestamp;
 };
 
-exports.startPokeMobDetection = function (stream, onMob, onError) {
+var listeners = [];
+
+io.of("/mobs/all").on("connection", function (socket) {
+    console.log("Got new connection for all!");
+    listeners.push(
+        {socket: socket, coords: "all", radius: null}
+    );
+});
+
+io.of("/mobs/geo/:lat/:lon/:radius").on("connection", function (socket) {
+    console.log("Got new connection for (" + socket.req.param.lat +", " +socket.req.param.lon + "), " + socket.req.param.radius+" !");
+    listeners.push(
+        {socket: socket, coords: [socket.req.param.lon, socket.req.param.lat], radius: socket.param.radius}
+    );
+});
+
+exports.startPokeMobDetection = function (stream, callback, onError) {
     var clusters = {};
     var maxClusterId = 0;
+
+    var notifyClients = function(cluster, channel){
+        for (var i in listeners){
+            var listener = listeners[i];
+            if (listener.coords == "all" || haversineDistance(listener.coords, cluster.coords) <= listener.radius) {
+                listener.socket.emit(channel, cluster);
+            }
+        }
+    };
+
+    var onMob = function(mob) {
+        callback(mob);
+        notifyClients(mob, "mob");
+    };
 
     stream.on('data', function(tweet) {
         // console.log(JSON.stringify(tweet));
@@ -105,7 +136,6 @@ exports.startPokeMobDetection = function (stream, onMob, onError) {
                 }
             }
         }
-
 
         var coordsFormatted = "" + tweet.coordinates.coordinates[1] + ", " + tweet.coordinates.coordinates[0];
         console.log("Got geotagged tweet (" + tweet.text.replace("\n", " ") + ") (" + coordsFormatted +")!");
@@ -141,8 +171,12 @@ exports.startPokeMobDetection = function (stream, onMob, onError) {
             tweets: [newTweet],
             coordinates: newTweet.coordinates,
             timestamp: newTweet.timestamp, // timestamp of last tweet in cluster
-            isMob: false
+            isMob: false,
+            clusterId: maxClusterId
         };
+
+        notifyClients(clusters[maxClusterId], "cluster");  // TODO just debugging
+
         console.log("Created new cluster " + maxClusterId);
 
         // increment ID for next cluster

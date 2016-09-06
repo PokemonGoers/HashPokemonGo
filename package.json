@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "moment": "^2.14.1",
-    "twitter": "^1.2.5"
+    "twitter": "^1.2.5",
+    "socket.io": "latest"
   }
 }
