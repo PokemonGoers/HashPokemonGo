@@ -8,14 +8,14 @@ var SearchError = function (message, date, searchedName) {
     this.message = message || 'Some Failure happened while searching for a SentimentAnalysis';
     this.stack = (new Error()).stack;
     this.date = date;
-    this.character = searchedName;
+    this.pokemon = searchedName;
 };
 
 SearchError.prototype = Object.create(Error.prototype);
 SearchError.prototype.constructor = SearchError;
 
 /*
- Saves a json to the character in the database
+ Saves a json to the pokemon in the database
  json format:
  {
  "date" : "12.11.2016",    //Analyzed date
@@ -30,7 +30,7 @@ exports.saveSentiment = function (charName, json) {
     var url = config.database.sentimentSave;
     var form = {
         form: {
-            'character': charName,
+            "pokemon": charName,
             'date': json.date,
             'posSum': json.posSum,
             'negSum': json.negSum,
@@ -49,7 +49,7 @@ exports.saveSentiment = function (charName, json) {
 /*
  JSON that will be passed to the callback function is an array with the elements with these properties:
  {
- character: String,
+ pokemon: String,
  date     : DateString,		// in ISO Date format
  posSum   : Number,
  negSum   : Number,
@@ -66,7 +66,7 @@ exports.getSentimentForNameTimeframe = function (character, startDate, endDate, 
     var endmil = (new Date(endDate)).getTime();
     var form = {
         form: {
-            'character': character
+            "pokemon": pokemon
         }
     };
     request.post(url, form, function (err, response, body) {
@@ -76,11 +76,11 @@ exports.getSentimentForNameTimeframe = function (character, startDate, endDate, 
             callback(undefined, error);
         } else {
             if (response.statusCode === 400) {
-                error = new SearchError('Usage of invalid database schema', startDate, character);
+                error = new SearchError('Usage of invalid database schema', startDate, pokemon);
                 callback(undefined, error);
             }
             if (response.statusCode === 404) {
-                error = new SearchError('No data for this character', startDate, character);
+                error = new SearchError('No data for this pokemon', startDate, pokemon);
                 callback(undefined, error);
             }
             if (response.statusCode === 200) {
@@ -91,7 +91,7 @@ exports.getSentimentForNameTimeframe = function (character, startDate, endDate, 
                     return (endmil >= date) && (startmil <= date) && (element.description === "Group 5");
                 });
                 if (json.length === 0) {
-                    error = new SearchError('No results in database', startDate, character);
+                    error = new SearchError('No results in database', startDate, pokemon);
                     callback(undefined, error);
                 } else {
                     callback(json);
@@ -136,7 +136,7 @@ exports.getSentimentTimeframe = function (startDate, endDate, callback) {
                 callback(undefined, error);
             }
             if (resp.statusCode === 404) {
-                error = new SearchError('Invalid character or timeframe', startDate);
+                error = new SearchError('Invalid pokemon or timeframe', startDate);
                 callback(undefined, error);
             }
         }
@@ -182,7 +182,7 @@ exports.airDate = function (season, episode, callback) {
 };
 
 /*
- Callback function gets JSON with all character Names as parameter
+ Callback function gets JSON with all pokemon Names as parameter
  */
 exports.characterNames = function (callback) {
     //URL to API by ProjectA
@@ -200,7 +200,7 @@ exports.characterNames = function (callback) {
             var json = JSON.parse(body);
             var formatted = []; //make it an array for easier iteration
             for (var i = 0; i < json.length; i++) {
-                //only include the names
+                //only include the pokemons
                 formatted.push({
                     name: json[i].name
                 });

@@ -3,7 +3,14 @@
   "consumer_secret": "",
   "access_token_key": "",
   "access_token_secret": "",
-
+  
+  "database": {
+    "airDateURL": "XXXXXXXXXXXXXXXXXXXXXX",
+    "characterNamesURL": "XXXXXXXXXXXXXXXXXXXXXXX",
+    "sentimentSave": "XXXXXXXXXXXXXXXXXXXX",
+    "sentimentGetChar": "XXXXXXXXXXXXXXXXXXXXX",
+    "sentimentGetAll": "XXXXXXXXXXXXXXXXXXXXXXx"
+  },
   // Automotion
   "automation": {
     "minutes": 20

@@ -1,9 +1,19 @@
 var db = require('../db/database');
 var sentiment = require('sentiment');
-/*
- Calculates the Sentiment score for an array of tweets and saves to databse
+
+/**
+ * Calculates the sentiment analysis of an arrray of tweets and stores them into the database
+ * @param pokemonName The pokemens name
+ * @param tweets
+ * @param startDate
+ * @param endDate
+ * @param save Should the result be saved into the database
+ * @param callback
  */
-exports.calculateSentimentsForTweets = function (characterName, tweets, startDate, endDate, isSaved, callback) {
+exports.calculateSentimentsForTweets = function (pokemonName, tweets, startDate, endDate, save, callback) {
+
+    // TODO what about location
+
     var sentimentJSON = {};
     var posSentiment = 0;
     var negSentiment = 0;
@@ -33,10 +43,10 @@ exports.calculateSentimentsForTweets = function (characterName, tweets, startDat
     sentimentJSON.negCount = negTweets;
     sentimentJSON.nullCount = nullTweets;
     sentimentJSON.description = "Group 5";
-    if (isSaved) {
-        db.saveSentiment(characterName, sentimentJSON);
+    if (save) {
+        db.saveSentiment(pokemonName, sentimentJSON);
     } else {
-        sentimentJSON.character = characterName;
+        sentimentJSON.pokemon = pokemonName;
         callback(sentimentJSON);
     }
 };
