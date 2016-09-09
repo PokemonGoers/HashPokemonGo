@@ -1,4 +1,4 @@
-var pokemons = require('../popChars/pokemons.js');
+var pokemons = require('./pokemons.js');
 var twitter = require('./twitterApi');
 var config = require('../cfg/config.json');
 var intervalID,
