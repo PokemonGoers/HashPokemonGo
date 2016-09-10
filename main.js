@@ -8,6 +8,7 @@ var Twitter = require('twitter');
 var hashpokemongo = require("./hashpokemongo");
 var twitterCredentials = require("./config/twitter.json");
 var PokemonTwitter = require("../PokeData/app/controllers/filler/twitter");
+var sentimentFeed = require("./sentiment_feed/sentimentFeed");
 
 
 
@@ -17,10 +18,10 @@ var stream = PokemonTwitter.getPokemonTwitterStream();
 
 hashpokemongo.helloWorld();
 
-stream.on("data", function (data) {
+/*stream.on("data", function (data) {
     if (data.user) {
         var toLog = "got tweet by '" + data.user.screen_name + "': " + data.text;
-        console.log(toLog.replace("\n", ""), data.retweeted);
+        //console.log(toLog.replace("\n", ""), data.retweeted);
     }
 });
 
@@ -29,4 +30,6 @@ hashpokemongo.mob.startPokeMobDetection(stream, function (mob) {
     console.log(mob);
 }, function (error) {
     console.log(error);
-});
+});*/
+
+sentimentFeed.startSentimentFeed(stream);
