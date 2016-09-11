@@ -26,11 +26,12 @@ SearchError.prototype.constructor = SearchError;
  "nullT" : "23"  // number of neutral tweets
  }
  */
-exports.saveSentiment = function (charName, json) {
+exports.saveSentiment = function (pokemon, json) {
     var url = config.database.sentimentSave;
     var form = {
         form: {
-            "pokemon": charName,
+            "pokemonId": pokemon.Number,
+            "pokemon": pokemon.Name,
             'date': json.date,
             'posSum': json.posSum,
             'negSum': json.negSum,

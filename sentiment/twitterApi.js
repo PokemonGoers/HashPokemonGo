@@ -52,8 +52,8 @@ exports.getStream = function (characterName, duration, isSaved, callback) {
 
 //launch Rest-API search
 //startDate, endDate in format "yyyy-mm-dd"
-exports.getRest = function (pokemonName, startDate, endDate, isSaved, callback) {
-    var searchArguments = getRestSearchArguments(pokemonName, startDate, endDate);
+exports.getRest = function (pokemon, startDate, endDate, isSaved, callback) {
+    var searchArguments = getRestSearchArguments(pokemon.Name, startDate, endDate);
     client.get('search/tweets', searchArguments, function (error, tweets, response) {
         var statuses = tweets.statuses;
         var tweetArray = [];
@@ -61,23 +61,23 @@ exports.getRest = function (pokemonName, startDate, endDate, isSaved, callback) 
             var tweet = statuses[index];
             tweetArray.push(tweet);
         }
-        var filteredTweets = filterTweetsByHashtags(tweetArray, pokemonName);
-        runSentimentAnalysis(filteredTweets, pokemonName, startDate, endDate, isSaved, callback);
+        var filteredTweets = filterTweetsByHashtags(tweetArray, pokemon.Name);
+        runSentimentAnalysis(filteredTweets, pokemon, startDate, endDate, isSaved, callback);
     });
 };
 
 /**
  * Execute sentiment analysis on Tweets
  * @param tweetArray The tweets
- * @param pokemonName The name of the pokemon
+ * @param pokemon
  * @param startDate
  * @param endDate
  * @param isSaved
  * @param callback
  */
-function runSentimentAnalysis(tweetArray, pokemonName, startDate, endDate, isSaved, callback) {
-    var jsonTweets = getJSONTweetArray(tweetArray, pokemonName);
-    sentiments.calculateSentimentsForTweets(pokemonName, jsonTweets, startDate, endDate, isSaved, callback);
+function runSentimentAnalysis(tweetArray, pokemon, startDate, endDate, isSaved, callback) {
+    var jsonTweets = getJSONTweetArray(tweetArray, pokemon);
+    sentiments.calculateSentimentsForTweets(pokemon, jsonTweets, startDate, endDate, isSaved, callback);
 }
 
 function getJSONTweetArray(tweetArray, characterName) {

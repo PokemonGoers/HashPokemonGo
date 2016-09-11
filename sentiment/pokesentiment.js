@@ -1,6 +1,6 @@
-var pokemons = require('./pokemons.js');
+var pokemons = require('../data/pokemons.js');
 var twitter = require('./twitterApi');
-var config = require('../cfg/config.json');
+var config = require('../config/twitterSample.json');
 var intervalID,
     started = false;
 
