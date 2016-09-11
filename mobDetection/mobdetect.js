@@ -2,17 +2,13 @@
 /**
  * Created by dowling on 28/08/16.
  */
-var moment = require('moment');
 var io = require('socket.io')(3000);
+var utils = require("../util/util");
 
-/** Extend Number object with method to convert numeric degrees to radians */
-//via http://www.movable-type.co.uk/scripts/latlong.html
-if (Number.prototype.toRadians === undefined) {
-    Number.prototype.toRadians = function() { return this * Math.PI / 180; };
-}
+
 
 // minimum number of close-by tweets in a cluster required for it to become a mob
-var mobSizeThreshold = 8;  // TODO figure out a reasonable minimum mob size
+var mobSizeThreshold = 5;  // TODO figure out a reasonable minimum mob size
 
 // maximum number of seconds that can pass between two tweets in a cluster before the cluster is deleted again
 var maxClusterAge = 5 * 60; // seconds
@@ -20,35 +16,14 @@ var maxClusterAge = 5 * 60; // seconds
 // max number of meters between two tweets for them to be in the same cluster
 var maxDistanceThreshold = 300;
 
-var haversineDistance = function(coords1, coords2){
-    // haversine distance function, gives number of meters between two points
-    // via http://www.movable-type.co.uk/scripts/latlong.html
 
-    var lon1 = coords1[0];
-    var lat1 = coords1[1];
-
-    var lon2 = coords2[0];
-    var lat2 = coords2[1];
-
-    var R = 6371e3; // metres
-    var φ1 = lat1.toRadians();
-    var φ2 = lat2.toRadians();
-    var Δφ = (lat2-lat1).toRadians();
-    var Δλ = (lon2-lon1).toRadians();
-
-    var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-        Math.cos(φ1) * Math.cos(φ2) *
-        Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-    return R * c;
-};
 
 var merge = function (cluster, newTweet) {
     var tweeters = [];
-    for (var tweet in cluster.tweets){
-        if (tweeters.indexOf(tweet.user.screen_name) != 1){
-            tweeters.push(tweet.user.screen_name);
+    for (var i in cluster.tweets){
+        var tweet = cluster.tweets[i];
+        if (tweeters.indexOf(tweet.user) != 1){
+            tweeters.push(tweet.user);
         }
     }
     var numTweeters = tweeters.length;
@@ -77,44 +52,57 @@ var merge = function (cluster, newTweet) {
     return cluster;
 };
 
-var getTimestamp = function(createdAtStr){
-    var timestamp = moment(createdAtStr, 'dd MMM DD HH:mm:ss ZZ YYYY', 'en');
-    timestamp.utc();
-    timestamp = parseInt(timestamp.format("X")); // unix timestamp (seconds)
-    return timestamp;
-};
 
 var listeners = [];
 
-io.of("/mobs/all").on("connection", function (socket) {
-    console.log("Got new connection for all!");
-    listeners.push(
-        {socket: socket, coords: "all", radius: null}
-    );
+io.of("/mobs").on("connection", function (socket) {
+    socket.on("settings", function (settings) {
+        if(settings.mode == "all"){
+            console.log("Got new connection for all!");
+            listeners.push(
+                {socket: socket, coordinates: "all", radius: null}
+            );
+        }else if (settings.mode == "geo"){
+            console.log("Got new connection for (" + settings.lat +", " + settings.lon + "), " + settings.radius+" !");
+            listeners.push(
+                {
+                    socket: socket,
+                    coordinates: [settings.lon, settings.lat],
+                    radius: settings.radius || 10000
+                }
+            );
+        }
+    })
 });
 
-io.of("/mobs/geo/:lat/:lon/:radius").on("connection", function (socket) {
-    console.log("Got new connection for (" + socket.req.param.lat +", " +socket.req.param.lon + "), " + socket.req.param.radius+" !");
-    listeners.push(
-        {socket: socket, coords: [socket.req.param.lon, socket.req.param.lat], radius: socket.param.radius}
-    );
+io.of("/mobs").on("disconnect", function (socket){
+    console.log("Trying to remove socket " + socket.id);
+    var i = listeners.length;
+    while (i--){
+        var listener = listeners[i];
+        if (listener.socket == socket) {
+            listeners.splice(i, 1);
+            console.log("Removed socket " + socket.id);
+            return;
+        }
+    }
 });
 
-exports.startPokeMobDetection = function (stream, callback, onError) {
+
+exports.startPokeMobDetection = function (stream, onError) {
     var clusters = {};
     var maxClusterId = 0;
 
     var notifyClients = function(cluster, channel){
         for (var i in listeners){
             var listener = listeners[i];
-            if (listener.coords == "all" || haversineDistance(listener.coords, cluster.coords) <= listener.radius) {
+            if (listener.coordinates == "all" || utils.haversineDistance(listener.coordinates, cluster.coordinates) <= listener.radius) {
                 listener.socket.emit(channel, cluster);
             }
         }
     };
 
     var onMob = function(mob) {
-        callback(mob);
         notifyClients(mob, "mob");
     };
 
@@ -122,6 +110,9 @@ exports.startPokeMobDetection = function (stream, callback, onError) {
         // console.log(JSON.stringify(tweet));
         // we definitely need locations
         if (tweet.coordinates == null){
+            return;
+        }
+        if (!tweet.user) {
             return;
         }
 
@@ -144,15 +135,16 @@ exports.startPokeMobDetection = function (stream, callback, onError) {
         var newTweet = {
             id: tweet.id_str,
             text: tweet.text,
+            user: tweet.user.screen_name,
             coordinates: tweet.coordinates.coordinates,
-            timestamp: getTimestamp(tweet.created_at)
+            timestamp: utils.getTimestamp(tweet.created_at)
         };
 
         // see if the new tweet should be merged to any existing cluster TODO: if needed, speed up with a geo index
         for (clusterId in clusters){
             if (clusters.hasOwnProperty(clusterId)){
                 var cluster = clusters[clusterId];
-                var dist = haversineDistance(cluster.coordinates, newTweet.coordinates);
+                var dist = utils.haversineDistance(cluster.coordinates, newTweet.coordinates);
                 if (dist < maxDistanceThreshold){
                     console.log("Merging tweet with cluster " + clusterId +"!");
                     cluster = merge(cluster, newTweet);  // TODO: we need to incorporate number of users (one person should not be a mob)

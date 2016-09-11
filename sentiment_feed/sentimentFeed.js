@@ -1,4 +1,6 @@
 var io = require('socket.io')(8888);
+var sentiment = require("sentiment");
+var utils = require("../util/util");
 /*
   observedPokemon:
     Maps each pokemon name to its current sentiment and a list
@@ -6,38 +8,65 @@ var io = require('socket.io')(8888);
   listeners:
     Maps each listenerId to the listener object
 */
-var observedPokemon = {};
-var listeners = {};
+
+var listeners = [];
+var allPokemonNames = {};
 
 io.of('/sentiment').on('connection', function (socket) {
-    console.log("New connection for live sentiment!");
-    listeners[socket.id] = {
-      socket: socket,
-      lat: socket.handshake.query.lat,
-      lng: socket.handshake.query.lng,
-      rad: socket.handshake.query.rad
-    };
-    console.log(listeners);
-    // TODO: get nearby pokemon
-    var nearbyPokemon = [];// = PokemonGoAPI.getPokemon(lat, lng, rad);
-
-    for (p in nearbyPokemon) {
-      if (observedPokemon[p.name] == undefined) {
-        var newPokemon = {
-          sentiment: 0,
-          listenerIds: [newId]
-        }
-        observedPokemon[p.name] = newPokemon;
-      } else {
-        observedPokemon[p.name].listenerIds.push(newId);
-      }
-    }
-
+    socket.on("settings", function(settings){
+        console.log("New connection for live sentiment, for (" + settings.lat +", " + settings.lon + "), " + settings.radius+" !");
+        var coords = settings.mode == "all"? "all": [settings.lon, settings.lat];
+        var listener = {
+            socket: socket,
+            coordinates: coords,
+            radius: settings.radius || 1000,
+            pokemonName: settings.pokemonName || "all"
+        };
+        listeners.push(listener);
+        allPokemonNames[listener.pokemonName] = true; // value is insignificant, we just need a set
+    });
 });
 
 exports.startSentimentFeed = function(stream) {
-  stream.on('data', function(tweet) {
-    // console.log("startSentimentFeed TWEET: ", tweet);
-  });
-}
+    var notifyClients = function(tweet){
+        for (var i in listeners){
+            var listener = listeners[i];
+            if (listener.coordinates == "all" || utils.haversineDistance(listener.coordinates, tweet.coordinates) <= listener.radius) {
+                if (listener.pokemonName == "all" || tweet.text.indexOf(listener.pokemonName) != -1){
+                    listener.socket.emit("tweet", tweet);
+                }
+            }
+        }
+    };
+
+    stream.on('data', function(tweet) {
+        // console.log(JSON.stringify(tweet));
+        // we definitely need locations
+        if (tweet.coordinates == null){
+            return;
+        }
+        if (!tweet.user) {
+            return;
+        }
+
+        var now = Math.floor(Date.now() / 1000);
+
+        var coordsFormatted = "" + tweet.coordinates.coordinates[1] + ", " + tweet.coordinates.coordinates[0];
+        console.log("Got geotagged tweet (" + tweet.text.replace("\n", " ") + ") (" + coordsFormatted +")!");
+
+        // get sentiment score
+        var sentim = sentiment(tweet.text);
+
+        // simplify tweet format
+        var newTweet = {
+            id: tweet.id_str,
+            text: tweet.text,
+            user: tweet.user.screen_name,
+            coordinates: tweet.coordinates.coordinates,
+            timestamp: utils.getTimestamp(tweet.created_at),
+            sentiment: sentim
+        };
+        notifyClients(newTweet);
+    });
+};
 

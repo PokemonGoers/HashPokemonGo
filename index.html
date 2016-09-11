@@ -8,21 +8,52 @@
 <!--script src="/socket.io/socket.io.js"></script-->
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script>
-/*    var socket = io('http://localhost:3000/mobs/all');
+
+    // Registering a listener for all mobs / clusters
+    var socket = io('http://localhost:3000/mobs');
+    socket.on('connect', function () {
+        console.log("Connected to server, sending settings for listening to all clusters..");
+        socket.emit("settings", {mode: "all"});
+    });
+
     socket.on('mob', function (data) {
         console.log("Mob spotted!", data);
     });
 
     socket.on('cluster', function (data) {
         console.log("New cluster: ", data);
-    });*/
-    var socket = io('http://localhost:8888/sentiment', {
-        query: "lat=1&lng=2&rad=3"
     });
 
-    socket.on('mob', function (data) {
-        console.log("Mob spotted!", data);
+    // Registering a listener for some "local" mobs / clusters
+    var socket2 = io('http://localhost:3000/mobs');
+    socket2.on("connect", function () {
+        console.log("Connected to server, sending geo settings..");
+        socket2.emit("settings", {mode: "geo", lat: 1, lon:1, radius: 5000000});
     });
+
+    socket2.on('mob', function (data) {
+        console.log("Geo Mob spotted!", data);
+    });
+
+    socket2.on('cluster', function (data) {
+        console.log("New geo cluster: ", data);
+    });
+
+
+    // Registering a listener for live sentiment scores, same idea.
+    var socket3 = io('http://localhost:8888/sentiment');
+    socket3.on("connect", function(){
+        socket3.emit("settings",
+                {
+                    mode: "geo", lat: 1, lon:1, radius: 50000000 //, pokemonName: "Abra", mode: "all"
+                }
+        );
+    });
+
+    socket3.on("tweet", function (data){
+        console.log(data);
+    });
+
 
 </script>
 </body>
