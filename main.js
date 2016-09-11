@@ -20,7 +20,7 @@ hashpokemongo.helloWorld();
 stream.on("data", function (data) {
     if (data.user) {
         var toLog = "got tweet by '" + data.user.screen_name + "': " + data.text;
-        console.log(toLog.replace("\n", ""), data.retweeted);
+        // console.log(toLog.replace("\n", ""), data.retweeted);
     }
 });
 

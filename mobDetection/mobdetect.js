@@ -7,12 +7,12 @@ var io = require('socket.io')(3000);
 
 /** Extend Number object with method to convert numeric degrees to radians */
 //via http://www.movable-type.co.uk/scripts/latlong.html
-if (Number.prototype.toRadians === undefined) {
-    Number.prototype.toRadians = function() { return this * Math.PI / 180; };
-}
+var toRadians = function (num) {
+    return num * Math.PI / 180;
+};
 
 // minimum number of close-by tweets in a cluster required for it to become a mob
-var mobSizeThreshold = 8;  // TODO figure out a reasonable minimum mob size
+var mobSizeThreshold = 5;  // TODO figure out a reasonable minimum mob size
 
 // maximum number of seconds that can pass between two tweets in a cluster before the cluster is deleted again
 var maxClusterAge = 5 * 60; // seconds
@@ -31,10 +31,10 @@ var haversineDistance = function(coords1, coords2){
     var lat2 = coords2[1];
 
     var R = 6371e3; // metres
-    var φ1 = lat1.toRadians();
-    var φ2 = lat2.toRadians();
-    var Δφ = (lat2-lat1).toRadians();
-    var Δλ = (lon2-lon1).toRadians();
+    var φ1 = toRadians(lat1);
+    var φ2 = toRadians(lat2);
+    var Δφ = toRadians(lat2-lat1);
+    var Δλ = toRadians(lon2-lon1);
 
     var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
         Math.cos(φ1) * Math.cos(φ2) *
@@ -46,9 +46,10 @@ var haversineDistance = function(coords1, coords2){
 
 var merge = function (cluster, newTweet) {
     var tweeters = [];
-    for (var tweet in cluster.tweets){
-        if (tweeters.indexOf(tweet.user.screen_name) != 1){
-            tweeters.push(tweet.user.screen_name);
+    for (var i in cluster.tweets){
+        var tweet = cluster.tweets[i];
+        if (tweeters.indexOf(tweet.user) != 1){
+            tweeters.push(tweet.user);
         }
     }
     var numTweeters = tweeters.length;
@@ -86,19 +87,43 @@ var getTimestamp = function(createdAtStr){
 
 var listeners = [];
 
-io.of("/mobs/all").on("connection", function (socket) {
+var allIO = io.of("/mobs/all");
+
+allIO.on("connection", function (socket) {
     console.log("Got new connection for all!");
     listeners.push(
-        {socket: socket, coords: "all", radius: null}
+        {socket: socket, coordinates: "all", radius: null}
     );
+});
+var geoIO = io.of("/mobs/geo");
+
+geoIO.on("connection", function (socket) {
+    console.log("Got new connection for (" + socket.handshake.query.lat +", " +socket.handshake.query.lon + "), " + socket.handshake.query.radius+" !");
+    if (socket.handshake.query.lat && socket.handshake.query.lon){
+        listeners.push(
+            {
+                socket: socket,
+                coordinates: [socket.handshake.query.lon, socket.handshake.query.lat],
+                radius: socket.handshake.query.radius || 10000}
+        );
+    }
+
 });
 
-io.of("/mobs/geo/:lat/:lon/:radius").on("connection", function (socket) {
-    console.log("Got new connection for (" + socket.req.param.lat +", " +socket.req.param.lon + "), " + socket.req.param.radius+" !");
-    listeners.push(
-        {socket: socket, coords: [socket.req.param.lon, socket.req.param.lat], radius: socket.param.radius}
-    );
-});
+var deregisterSocket = function (socket){
+    var i = listeners.length;
+    while (i--){
+        var listener = listeners[i];
+        if (listener.socket === socket) {
+            listeners.splice(i, 1);
+            console.log("Removed socket " + socket.id);
+            return;
+        }
+    }
+};
+
+allIO.on("disconnect", deregisterSocket);
+geoIO.on("disconnect", deregisterSocket);
 
 exports.startPokeMobDetection = function (stream, callback, onError) {
     var clusters = {};
@@ -107,7 +132,7 @@ exports.startPokeMobDetection = function (stream, callback, onError) {
     var notifyClients = function(cluster, channel){
         for (var i in listeners){
             var listener = listeners[i];
-            if (listener.coords == "all" || haversineDistance(listener.coords, cluster.coords) <= listener.radius) {
+            if (listener.coordinates == "all" || haversineDistance(listener.coordinates, cluster.coordinates) <= listener.radius) {
                 listener.socket.emit(channel, cluster);
             }
         }
@@ -122,6 +147,9 @@ exports.startPokeMobDetection = function (stream, callback, onError) {
         // console.log(JSON.stringify(tweet));
         // we definitely need locations
         if (tweet.coordinates == null){
+            return;
+        }
+        if (!tweet.user) {
             return;
         }
 
@@ -144,6 +172,7 @@ exports.startPokeMobDetection = function (stream, callback, onError) {
         var newTweet = {
             id: tweet.id_str,
             text: tweet.text,
+            user: tweet.user.screen_name,
             coordinates: tweet.coordinates.coordinates,
             timestamp: getTimestamp(tweet.created_at)
         };

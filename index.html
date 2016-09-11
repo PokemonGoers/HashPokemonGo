@@ -8,6 +8,15 @@
 <!--script src="/socket.io/socket.io.js"></script-->
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script>
+    var socket2 = io('http://localhost:3000/mobs/geo', {query: "lat=1&lon=1&radius=5000000"});
+    socket2.on('mob', function (data) {
+        console.log("Geo Mob spotted!", data);
+    });
+
+    socket2.on('cluster', function (data) {
+        console.log("New geo cluster: ", data);
+    });
+
     var socket = io('http://localhost:3000/mobs/all');
     socket.on('mob', function (data) {
         console.log("Mob spotted!", data);
@@ -16,6 +25,8 @@
     socket.on('cluster', function (data) {
         console.log("New cluster: ", data);
     });
+
+
 </script>
 </body>
 </html>
