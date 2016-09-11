@@ -4,9 +4,7 @@
  */
 
 require("../PokeData/constants");
-var Twitter = require('twitter');
 var hashpokemongo = require("./hashpokemongo");
-var twitterCredentials = require("./config/twitter.json");
 var PokemonTwitter = require("../PokeData/app/controllers/filler/twitter");
 
 

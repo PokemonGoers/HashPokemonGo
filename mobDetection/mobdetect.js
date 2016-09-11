@@ -87,34 +87,32 @@ var getTimestamp = function(createdAtStr){
 
 var listeners = [];
 
-var allIO = io.of("/mobs/all");
-
-allIO.on("connection", function (socket) {
-    console.log("Got new connection for all!");
-    listeners.push(
-        {socket: socket, coordinates: "all", radius: null}
-    );
-});
-var geoIO = io.of("/mobs/geo");
-
-geoIO.on("connection", function (socket) {
-    console.log("Got new connection for (" + socket.handshake.query.lat +", " +socket.handshake.query.lon + "), " + socket.handshake.query.radius+" !");
-    if (socket.handshake.query.lat && socket.handshake.query.lon){
-        listeners.push(
-            {
-                socket: socket,
-                coordinates: [socket.handshake.query.lon, socket.handshake.query.lat],
-                radius: socket.handshake.query.radius || 10000}
-        );
-    }
-
+io.of("/mobs").on("connection", function (socket) {
+    socket.on("settings", function (settings) {
+        if(settings.mode == "all"){
+            console.log("Got new connection for all!");
+            listeners.push(
+                {socket: socket, coordinates: "all", radius: null}
+            );
+        }else if (settings.mode == "geo"){
+            console.log("Got new connection for (" + settings.lat +", " + settings.lon + "), " + settings.radius+" !");
+            listeners.push(
+                {
+                    socket: socket,
+                    coordinates: [settings.lon, settings.lat],
+                    radius: settings.radius || 10000
+                }
+            );
+        }
+    })
 });
 
 var deregisterSocket = function (socket){
+    console.log("Trying to remove socket " + socket.id);
     var i = listeners.length;
     while (i--){
         var listener = listeners[i];
-        if (listener.socket === socket) {
+        if (listener.socket == socket) {
             listeners.splice(i, 1);
             console.log("Removed socket " + socket.id);
             return;
@@ -122,8 +120,8 @@ var deregisterSocket = function (socket){
     }
 };
 
-allIO.on("disconnect", deregisterSocket);
-geoIO.on("disconnect", deregisterSocket);
+// allIO.on("disconnect", deregisterSocket);
+// geoIO.on("disconnect", deregisterSocket);
 
 exports.startPokeMobDetection = function (stream, callback, onError) {
     var clusters = {};
