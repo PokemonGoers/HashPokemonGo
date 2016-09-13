@@ -52,7 +52,7 @@ exports.startSentimentFeed = function(stream) {
         var now = Math.floor(Date.now() / 1000);
 
         var coordsFormatted = "" + tweet.coordinates.coordinates[1] + ", " + tweet.coordinates.coordinates[0];
-        console.log("Got geotagged tweet (" + tweet.text.replace("\n", " ") + ") (" + coordsFormatted +")!");
+        console.log("(sentimentFeed) Got geotagged tweet (" + tweet.text.replace("\n", " ") + ") (" + coordsFormatted +")!");
 
         // get sentiment score
         var sentim = sentiment(tweet.text);

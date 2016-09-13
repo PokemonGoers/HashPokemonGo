@@ -102,10 +102,6 @@ exports.startPokeMobDetection = function (stream, onError) {
         }
     };
 
-    var onMob = function(mob) {
-        notifyClients(mob, "mob");
-    };
-
     stream.on('data', function(tweet) {
         // console.log(JSON.stringify(tweet));
         // we definitely need locations
@@ -129,7 +125,7 @@ exports.startPokeMobDetection = function (stream, onError) {
         }
 
         var coordsFormatted = "" + tweet.coordinates.coordinates[1] + ", " + tweet.coordinates.coordinates[0];
-        console.log("Got geotagged tweet (" + tweet.text.replace("\n", " ") + ") (" + coordsFormatted +")!");
+        console.log("(mobDetect) Got geotagged tweet (" + tweet.text.replace("\n", " ") + ") (" + coordsFormatted +")!");
 
         // simplify tweet format
         var newTweet = {
@@ -149,8 +145,10 @@ exports.startPokeMobDetection = function (stream, onError) {
                     console.log("Merging tweet with cluster " + clusterId +"!");
                     cluster = merge(cluster, newTweet);  // TODO: we need to incorporate number of users (one person should not be a mob)
                     clusters[clusterId] = cluster;
-                    if(cluster.isMob){ // TODO maybe only notify once, then notify on location change?
-                        onMob(cluster);
+
+                    notifyClients(clusters[clusterId], "cluster");
+                    if(cluster.isMob){
+                        notifyClients(clusters[maxClusterId], "mob");
                     }
 
                     return;
@@ -166,8 +164,7 @@ exports.startPokeMobDetection = function (stream, onError) {
             isMob: false,
             clusterId: maxClusterId
         };
-
-        notifyClients(clusters[maxClusterId], "cluster");  // TODO just debugging
+        notifyClients(clusters[maxClusterId], "cluster");
 
         console.log("Created new cluster " + maxClusterId);
 
