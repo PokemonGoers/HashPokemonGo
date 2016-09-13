@@ -164,7 +164,7 @@ exports.startPokeMobDetection = function (stream, onError) {
             isMob: false,
             clusterId: maxClusterId
         };
-        notifyClients(clusters[maxClusterId], "cluster");
+        //notifyClients(clusters[maxClusterId], "cluster");
 
         console.log("Created new cluster " + maxClusterId);
 
