@@ -6,6 +6,7 @@
 require("../PokeData/constants");
 var hashpokemongo = require("./hashpokemongo");
 var PokemonTwitter = require("../PokeData/app/controllers/filler/twitter");
+var twitterSentiments = require("./sentimentTwitter/twittersentiments");
 
 var options = {
     consumer_key: process.env.CONSUMER_KEY,
@@ -32,8 +33,10 @@ stream.on("data", function (data) {
     }
 });
 
-hashpokemongo.mob.startPokeMobDetection(stream, function (error){
+hashpokemongo.mob.startPokeMobDetection(stream, function (error) {
     console.log(error);
 });
 
 hashpokemongo.sentimentFeed.startSentimentFeed(stream);
+
+twitterSentiments.startTweetsAnalysis(client, null);

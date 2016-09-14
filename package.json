@@ -8,6 +8,7 @@
     "moment": "^2.14.1",
     "twitter": "^1.2.5",
     "socket.io": "latest",
-    "sentiment": "latest"
+    "sentiment": "latest",
+    "rxjs": "latest"
   }
 }
