@@ -73,7 +73,7 @@
 
 
     // Registering a listener for live sentiment scores, same idea.
-    var socket3 = io('http://localhost:8888/sentiment');
+    var socket3 = io('http://localhost:3000/sentiment');
     socket3.on("connect", function(){
         socket3.emit("settings",
                 {

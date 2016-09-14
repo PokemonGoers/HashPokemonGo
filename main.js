@@ -24,13 +24,23 @@ var stream = client.stream('statuses/filter', {track: pokemonSearchTerms + "," +
 
 stream.on("data", function (data) {
     if (data.user) {
-        console.log("Got tweet by '" + data.user.screen_name + "': " + data.text);
+        // console.log("Got tweet by '" + data.user.screen_name + "': " + data.text);
     }
 });
 
-hashpokemongo.helloWorld();
-hashpokemongo.mob.startPokeMobDetection(stream, function (error){
+var io = require('socket.io')(3000);
+
+// hashpokemongo.helloWorld();
+
+var mobOptions = {
+    io: io,
+    mobSizeThreshold: 5,
+    maxClusterAge: 5 * 60,
+    maxDistanceThreshold: 300
+};
+
+hashpokemongo.MobDetection(mobOptions).startPokeMobDetection(stream, function (error){
     console.log(error);
 });
 
-hashpokemongo.sentimentFeed.startSentimentFeed(stream);
+hashpokemongo.SentimentFeed({io: io}).startSentimentFeed(stream);
