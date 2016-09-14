@@ -111,19 +111,24 @@ function containsHashtag(hashtagsArray, hashtagsToContain) {
 function toSentimentedTweet(tweet) {
 
     var sentimentScore = sentiment(tweet.text).score;
+    var lat, lng;
 
     if (!tweet.coordinates) {
-        return {id: tweet.id, text: tweet.text, sentimentScore: sentimentScore, lat: null, lng: null}
+        lat = null;
+        lng = null;
     } else {
-        return {
-            id: tweet.id,
-            text: tweet.text,
-            sentimentScore: sentimentScore,
-            lat: tweet.coordinates[0].coordinates[1],
-            lng: tweet.coordinates[0].coordinates[0]
-        }
+        lat = tweet.coordinates.coordinates[1];
+        lng = tweet.coordinates.coordinates[0];
     }
 
+    return {
+        id: tweet.id,
+        text: tweet.text,
+        created_at: new Date(tweet.created_at),
+        sentimentScore: sentimentScore,
+        lat: lat,
+        lng: lng
+    }
 }
 
 /**

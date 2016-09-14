@@ -27,7 +27,7 @@ var stream = client.stream('statuses/filter', {track: pokemonSearchTerms + "," +
 
 stream.on("data", function (data) {
     if (data.user) {
-        console.log("Got tweet by '" + data.user.screen_name + "': " + data.text);
+       // console.log("Got tweet by '" + data.user.screen_name + "': " + data.text);
     }
 });
 
