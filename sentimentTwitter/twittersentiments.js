@@ -1,11 +1,14 @@
 // libs
 var Rx = require("rxjs");
 var sentiment = require("sentiment");
+var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
 
 
 // Data
 var pokemons = require('./pokemons');
 var subscription = null;
+var database = null;
 
 /**
  * Periocially check for tweets on twitter and runs sentiment analysis on those tweets.
@@ -14,6 +17,17 @@ var subscription = null;
  * @param databaseConfig
  */
 module.exports.startTweetsAnalysis = function (twitterClient, databaseConfig) {
+
+    MongoClient.connect(databaseConfig.url, function (err, db) {
+        if (!err) {
+            console.log("Error while connecting to database. " + err);
+            throw err;
+        } else {
+            console.log("Connected correctly to database.");
+            database = db;
+        }
+    });
+
 
     subscription = Rx.Observable.interval(5 * 1000) // run every 18 seconds;  24 seconds for each pokemon to ensure each pokemon has been queried at least once per day
         .map(counter => pokemons[counter % 151]) // take the pokemon at index
@@ -33,6 +47,7 @@ module.exports.startTweetsAnalysis = function (twitterClient, databaseConfig) {
         .flatMap(tweets => Rx.Observable.from(tweets)) // Emits ever item from the tweets array one by one to the observable stream
         .filter(tweet => containsHashtag(tweet.entities.hashtags, ['pokemongo', 'pokemon', 'pokémon'])) // filter tweets containing given hashtags
         .map(tweet => toSentimentedTweet(tweet))
+        .flatMap(sentimetedTweet => saveToDatabase(sentimetedTweet))
         .subscribe(next => console.log("onNext: sentiment: " + next.sentimentScore + " : " + next.text),
             error => console.log("onError: " + error));
 };
@@ -106,29 +121,50 @@ function containsHashtag(hashtagsArray, hashtagsToContain) {
 /**
  * Runs sentiment analysis on a tweet and returns
  * @param tweet The original tweet
- * @return {id: *, text: string, sentimentScore: number, lat: float, lng: float} object representing a tweet with the sentiment score and tweet id, text, latitude and longitude
+ * @return {id: *, text: string, sentimentScore: number, coordinates} object representing a tweet with the sentiment score and tweet id, text, latitude and longitude
  */
 function toSentimentedTweet(tweet) {
 
     var sentimentScore = sentiment(tweet.text).score;
-    var lat, lng;
 
+    var coordinates;
     if (!tweet.coordinates) {
-        lat = null;
-        lng = null;
+        coordinates = null;
     } else {
-        lat = tweet.coordinates.coordinates[1];
-        lng = tweet.coordinates.coordinates[0];
+        coordinates = tweet.coordinates.coordinates;
     }
+
 
     return {
         id: tweet.id,
         text: tweet.text,
-        created_at: new Date(tweet.created_at),
+        createdAt: new Date(tweet.created_at),
         sentimentScore: sentimentScore,
-        lat: lat,
-        lng: lng
+        coordinates: coordinates
     }
+}
+
+/**
+ * Saves the sentimented Tweet into the database
+ * @param sentimentedTweet
+ * @param collectionName
+ * @return Observable returning sentimeted tweet if it has been saved successfully
+ */
+function saveToDatabase(sentimentedTweet) {
+
+    return Rx.Observable.create(observer => {
+
+        database.collection('SentimentedTweets').insertOne(sentimentedTweet, function (err, db) {
+            if (!err) {
+                observer.next(sentimentedTweet);
+                observer.complete();
+            } else {
+                observer.error(err);
+            }
+        });
+
+    });
+
 }
 
 /**
@@ -137,6 +173,10 @@ function toSentimentedTweet(tweet) {
 module.exports.stopTweetsAnalysis = function () {
     if (subscription != null) {
         subscription.unsubscribe();
+    }
+
+    if (database != null) {
+        database.close();
     }
 };
 
