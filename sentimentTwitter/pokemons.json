@@ -2,746 +2,746 @@
     {
         "Number": "001",
         "Name": "Bulbasaur",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "002",
         "Name": "Ivysaur",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "003",
         "Name": "Venusaur",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "004",
         "Name": "Charmander",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "005",
         "Name": "Charmeleon",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "006",
         "Name": "Charizard",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "007",
         "Name": "Squirtle",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "008",
         "Name": "Wartortle",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "009",
         "Name": "Blastoise",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "010",
         "Name": "Caterpie",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "011",
         "Name": "Metapod",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "012",
         "Name": "Butterfree",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "013",
         "Name": "Weedle",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "014",
         "Name": "Kakuna",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "015",
         "Name": "Beedrill",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "016",
         "Name": "Pidgey",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "017",
         "Name": "Pidgeotto",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "018",
         "Name": "Pidgeot",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "019",
         "Name": "Rattata",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "020",
         "Name": "Raticate",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "021",
         "Name": "Spearow",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "022",
         "Name": "Fearow",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "023",
         "Name": "Ekans",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "024",
         "Name": "Arbok",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "025",
         "Name": "Pikachu",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "026",
         "Name": "Raichu",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "027",
         "Name": "Sandshrew",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "028",
         "Name": "Sandslash",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "029",
         "Name": "Nidoran ♀",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "030",
         "Name": "Nidorina",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "031",
         "Name": "Nidoqueen",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "032",
         "Name": "Nidoran ♂",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "033",
         "Name": "Nidorino",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "034",
         "Name": "Nidoking",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "035",
         "Name": "Clefairy",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "036",
         "Name": "Clefable",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "037",
         "Name": "Vulpix",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "038",
         "Name": "Ninetales",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "039",
         "Name": "Jigglypuff",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "040",
         "Name": "Wigglytuff",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "041",
         "Name": "Zubat",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "042",
         "Name": "Golbat",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "043",
         "Name": "Oddish",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "044",
         "Name": "Gloom",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "045",
         "Name": "Vileplume",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "046",
         "Name": "Paras",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "047",
         "Name": "Parasect",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "048",
         "Name": "Venonat",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "049",
         "Name": "Venomoth",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "050",
         "Name": "Diglett",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "051",
         "Name": "Dugtrio",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "052",
         "Name": "Meowth",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "053",
         "Name": "Persian",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "054",
         "Name": "Psyduck",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "055",
         "Name": "Golduck",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "056",
         "Name": "Mankey",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "057",
         "Name": "Primeape",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "058",
         "Name": "Growlithe",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "059",
         "Name": "Arcanine",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "060",
         "Name": "Poliwag",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "061",
         "Name": "Poliwhirl",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "062",
         "Name": "Poliwrath",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "063",
         "Name": "Abra",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "064",
         "Name": "Kadabra",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "065",
         "Name": "Alakazam",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "066",
         "Name": "Machop",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "067",
         "Name": "Machoke",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "068",
         "Name": "Machamp",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "069",
         "Name": "Bellsprout",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "070",
         "Name": "Weepinbell",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "071",
         "Name": "Victreebel",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "072",
         "Name": "Tentacool",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "073",
         "Name": "Tentacruel",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "074",
         "Name": "Geodude",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "075",
         "Name": "Graveler",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "076",
         "Name": "Golem",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "077",
         "Name": "Ponyta",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "078",
         "Name": "Rapidash",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "079",
         "Name": "Slowpoke",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "080",
         "Name": "Slowbro",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "081",
         "Name": "Magnemite",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "082",
         "Name": "Magneton",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "083",
         "Name": "Farfetch'd",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "084",
         "Name": "Doduo",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "085",
         "Name": "Dodrio",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "086",
         "Name": "Seel",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "087",
         "Name": "Dewgong",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "088",
         "Name": "Grimer",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "089",
         "Name": "Muk",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "090",
         "Name": "Shellder",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "091",
         "Name": "Cloyster",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "092",
         "Name": "Gastly",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "093",
         "Name": "Haunter",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "094",
         "Name": "Gengar",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "095",
         "Name": "Onix",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "096",
         "Name": "Drowzee",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "097",
         "Name": "Hypno",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "098",
         "Name": "Krabby",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "099",
         "Name": "Kingler",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "100",
         "Name": "Voltorb",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "101",
         "Name": "Electrode",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "102",
         "Name": "Exeggcute",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "103",
         "Name": "Exeggutor",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "104",
         "Name": "Cubone",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "105",
         "Name": "Marowak",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "106",
         "Name": "Hitmonlee",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "107",
         "Name": "Hitmonchan",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "108",
         "Name": "Lickitung",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "110",
         "Name": "Weezing",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "111",
         "Name": "Rhyhorn",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "112",
         "Name": "Rhydon",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "113",
         "Name": "Chansey",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "114",
         "Name": "Tangela",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "115",
         "Name": "Kangaskhan",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "116",
         "Name": "Horsea",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "117",
         "Name": "Seadra",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "118",
         "Name": "Goldeen",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "119",
         "Name": "Seaking",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "120",
         "Name": "Staryu",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "121",
         "Name": "Starmie",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "122",
         "Name": "Mr. Mime",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "123",
         "Name": "Scyther",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "124",
         "Name": "Jynx",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "125",
         "Name": "Electabuzz",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "126",
         "Name": "Magmar",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "127",
         "Name": "Pinsir",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "128",
         "Name": "Tauros",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "129",
         "Name": "Magikarp",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "130",
         "Name": "Gyarados",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "131",
         "Name": "Lapras",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "132",
         "Name": "Ditto",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "133",
         "Name": "Eevee",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "134",
         "Name": "Vaporeon",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "135",
         "Name": "Jolteon",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "136",
         "Name": "Flareon",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "137",
         "Name": "Porygon",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "138",
         "Name": "Omanyte",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "139",
         "Name": "Omastar",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "140",
         "Name": "Kabuto",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "141",
         "Name": "Kabutops",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "143",
         "Name": "Snorlax",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "144",
         "Name": "Articuno",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "145",
         "Name": "Zapdos",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "146",
         "Name": "Moltres",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "147",
         "Name": "Dratini",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "148",
         "Name": "Dragonair",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "149",
         "Name": "Dragonite",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "150",
         "Name": "Mewtwo",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     },
     {
         "Number": "151",
         "Name": "Mew",
-        "lastTwitterSearch": null
+        "lastTweetId": null
     }
 ]
