@@ -13,13 +13,13 @@ var database = null;
 /**
  * Periocially check for tweets on twitter and runs sentiment analysis on those tweets.
  * The value will then be saved into a database
- * @param twitterClient
- * @param databaseConfig
+ * @param twitterClient The preconfigured twitter client
+ * @param databaseUrl The url to the database
  */
-module.exports.startTweetsAnalysis = function (twitterClient, databaseConfig) {
+module.exports.startTweetsAnalysis = function (twitterClient, databaseUrl) {
 
-    MongoClient.connect(databaseConfig.url, function (err, db) {
-        if (!err) {
+    MongoClient.connect(databaseUrl, function (err, db) {
+        if (err) {
             console.log("Error while connecting to database. " + err);
             throw err;
         } else {
@@ -31,23 +31,20 @@ module.exports.startTweetsAnalysis = function (twitterClient, databaseConfig) {
 
     subscription = Rx.Observable.interval(5 * 1000) // run every 18 seconds;  24 seconds for each pokemon to ensure each pokemon has been queried at least once per day
         .map(counter => pokemons[counter % 151]) // take the pokemon at index
-        .do(pokemon => console.log("Searching tweets for " + pokemon.Name + " (" + pokemon.Number + ")")
-        ).flatMap(pokemon => {
+        .do(pokemon => console.log("Searching tweets for " + pokemon.Name + " (" + pokemon.Number + ")"))
+        .flatMap(pokemon => getLastTweetAboutPokemonFromDatabase(pokemon))
+        .flatMap(pokemon => {
             // Search for tweets and  set lastTweetId to now
             var emptyArrayObservable = Rx.Observable.from([1]).map(ignored => []); // in case of an network error: return empty array  ... For some streange reason Observable.just() hasn't been found.
-
-            return Rx.Observable.onErrorResumeNext(searchTweets(twitterClient, pokemon)
-                    .do(tweets => {
-                        if (tweets.length > 0)
-                            pokemon.lastTweetId = tweets[0].id;
-                    }),
-                emptyArrayObservable);
+            return Rx.Observable.onErrorResumeNext(searchTweets(twitterClient, pokemon), emptyArrayObservable);
 
         })
         .flatMap(tweets => Rx.Observable.from(tweets)) // Emits ever item from the tweets array one by one to the observable stream
         .filter(tweet => containsHashtag(tweet.entities.hashtags, ['pokemongo', 'pokemon', 'pokémon'])) // filter tweets containing given hashtags
-        .map(tweet => toSentimentedTweet(tweet))
-        .flatMap(sentimetedTweet => saveToDatabase(sentimetedTweet))
+        .map(tweet => toSentimentedTweet(tweet)) // Run sentiment anlysis on each Tweet
+        .filter(sentimetedTweet => sentimetedTweet.sentimentScore != 0) // Only take sentiments with more than 0
+        .flatMap(sentimetedTweet => saveToDatabase(sentimetedTweet)) // Save sentimented tweets into database
+        //.retry()
         .subscribe(next => console.log("onNext: sentiment: " + next.sentimentScore + " : " + next.text),
             error => console.log("onError: " + error));
 };
@@ -83,6 +80,10 @@ function searchTweets(twitterClient, pokemon) {
                 var tweetArray = [];
                 for (var index in statuses) {
                     var tweet = statuses[index];
+                    if (pokemon.lastTweetId != null && tweet.id === pokemon.lastTweetId) {
+                        continue; // Last element in the list is tweet with the id from since_id. Therefore skip that one as it is already in the database
+                    }
+                    tweet.pokemonNumber = pokemon.Number;
                     tweetArray.push(tweet);
                 }
                 observer.next(tweetArray);
@@ -116,6 +117,40 @@ function containsHashtag(hashtagsArray, hashtagsToContain) {
 
     return false;
 }
+/**
+ * Get the last tweet of a certain pokemon from database. This must be done to get the last tweet id so that we can continue searching for
+ * newer tweets
+ * @param pokemon the Pokemon
+ * @return {*} Observable of pokemon
+ */
+function getLastTweetAboutPokemonFromDatabase(pokemon) {
+    return Rx.Observable.create(observer => {
+        var cursor = database.collection('SentimentedTweets').find({"pokemonNumber": pokemon.Number}).sort({"createdAt": -1}).limit(1);
+        cursor.count().then(function (size) {
+            if (size == 0) {
+                pokemon.lastTweetId = null;
+                observer.next(pokemon);
+            } else {
+                cursor.forEach(function (doc, err) {
+                    if (err == null) {
+                        if (doc != null) {
+                            pokemon.lastTweetId = doc.twitterId;
+                        } else {
+                            pokemon.lastTweetId = null; // This case should already be covered with cursor.count() == 0 above
+                        }
+                        observer.next(pokemon);
+                        observer.complete();
+                    } else {
+                        observer.error(err);
+                    }
+                });
+            }
+        }, function (error) {
+            observer.error(err);
+        });
+
+    });
+}
 
 
 /**
@@ -136,8 +171,9 @@ function toSentimentedTweet(tweet) {
 
 
     return {
-        id: tweet.id,
+        twitterId: tweet.id,
         text: tweet.text,
+        pokemonNumber: tweet.pokemonNumber,
         createdAt: new Date(tweet.created_at),
         sentimentScore: sentimentScore,
         coordinates: coordinates
@@ -154,17 +190,15 @@ function saveToDatabase(sentimentedTweet) {
 
     return Rx.Observable.create(observer => {
 
-        database.collection('SentimentedTweets').insertOne(sentimentedTweet, function (err, db) {
-            if (!err) {
+        database.collection('SentimentedTweets').insertOne(sentimentedTweet, function (err2, db) {
+            if (err2 == null) {
                 observer.next(sentimentedTweet);
                 observer.complete();
             } else {
-                observer.error(err);
+                observer.error(err2);
             }
         });
-
     });
-
 }
 
 /**
