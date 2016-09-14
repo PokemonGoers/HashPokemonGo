@@ -97,7 +97,7 @@ function MobDetection(options){
 
         var notifyClients = function(cluster, channel){
             for (var i in moduleExports.listeners){
-                var listener = listeners[i];
+                var listener = moduleExports.listeners[i];
                 if (listener.coordinates == "all" || utils.haversineDistance(listener.coordinates, cluster.coordinates) <= listener.radius) {
                     listener.socket.emit(channel, cluster);
                 }
@@ -166,7 +166,7 @@ function MobDetection(options){
                 isMob: false,
                 clusterId: moduleExports.maxClusterId
             };
-            //notifyClients(clusters[maxClusterId], "cluster");
+            notifyClients(moduleExports.clusters[moduleExports.maxClusterId], "cluster");
 
             console.log("Created new cluster " + moduleExports.maxClusterId);
 

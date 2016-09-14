@@ -30,8 +30,6 @@ stream.on("data", function (data) {
 
 var io = require('socket.io')(3000);
 
-// hashpokemongo.helloWorld();
-
 var mobOptions = {
     io: io,
     mobSizeThreshold: 5,

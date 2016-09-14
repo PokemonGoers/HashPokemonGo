@@ -4,13 +4,6 @@ function SentimentFeed(options) {
 
     var sentiment = require("sentiment");
     var utils = require("../util/util");
-    /*
-     observedPokemon:
-     Maps each pokemon name to its current sentiment and a list
-     of ids of listeners who are subscribed to that pokemon
-     listeners:
-     Maps each listenerId to the listener object
-     */
 
     moduleExports.listeners = [];
     moduleExports.allPokemonNames = {};
@@ -23,7 +16,7 @@ function SentimentFeed(options) {
                 socket: socket,
                 coordinates: coords,
                 radius: settings.radius || 1000,
-                pokemonName: settings.pokemonName || "all"
+                pokemonName: settings.pokemonName.toLowerCase() || "all"
             };
             moduleExports.listeners.push(listener);
             moduleExports.allPokemonNames[listener.pokemonName] = true; // value is insignificant, we just need a set
@@ -35,7 +28,7 @@ function SentimentFeed(options) {
             for (var i in moduleExports.listeners) {
                 var listener = moduleExports.listeners[i];
                 if (listener.coordinates == "all" || utils.haversineDistance(listener.coordinates, tweet.coordinates) <= listener.radius) {
-                    if (listener.pokemonName == "all" || tweet.text.indexOf(listener.pokemonName) != -1) {
+                    if (listener.pokemonName == "all" || tweet.text.toLowerCase().indexOf(listener.pokemonName) != -1) {
                         listener.socket.emit("tweet", tweet);
                     }
                 }
@@ -65,7 +58,10 @@ function SentimentFeed(options) {
                 user: tweet.user.screen_name,
                 coordinates: tweet.coordinates.coordinates,
                 timestamp: utils.getTimestamp(tweet.created_at),
-                sentiment: sentim
+                sentiment: {
+                    score: sentim.score,
+                    comparative: sentim.comparative
+                }
             };
             notifyClients(newTweet);
         });
