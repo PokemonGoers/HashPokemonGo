@@ -6,16 +6,31 @@
 </head>
 <body>
 <style>
-    .column-left{ float: left; width: 33%; }
-    .column-right{ float: right; width: 33%; }
-    .column-center{ display: inline-block; width: 33%; }
-    .container{width: 100%;}
+    .column-left {
+        float: left;
+        width: 33%;
+    }
+
+    .column-right {
+        float: right;
+        width: 33%;
+    }
+
+    .column-center {
+        display: inline-block;
+        width: 33%;
+    }
+
+    .container {
+        width: 100%;
+    }
+
     .wordwrap {
-        white-space: pre-wrap;      /* CSS3 */
+        white-space: pre-wrap; /* CSS3 */
         white-space: -moz-pre-wrap; /* Firefox */
-        white-space: -pre-wrap;     /* Opera <7 */
-        white-space: -o-pre-wrap;   /* Opera 7 */
-        word-wrap: break-word;      /* IE */
+        white-space: -pre-wrap; /* Opera <7 */
+        white-space: -o-pre-wrap; /* Opera 7 */
+        word-wrap: break-word; /* IE */
     }
 
 </style>
@@ -30,10 +45,19 @@
 <div class="column-right">
     <h1>Historic sentiment analysis</h1>
     <div class="sentiment container wordwrap"></div>
+    <input type="text" id="pokemonNumber" placeholder="pokemon number i.e. 025 for Pikachu"/>
+    <input type="text" id="lat" placeholder="latitude"/>
+    <input type="text" id="lng" placeholder="longitude"/>
+    <input type="submit" id="go" />
+
+    <p>
+        <canvas id="myChart" width="500" height="250"></canvas>
+    </p>
 </div>
 <!--script src="/socket.io/socket.io.js"></script-->
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script src="https://code.jquery.com/jquery-3.1.0.slim.min.js"></script>
+<script src="https://cdn.rawgit.com/ahrex/Chart.js/b09a68353e95cbffbd1fae620c1577a0bb74cbf8/Chart.js"></script>
 
 <script>
 
@@ -51,7 +75,7 @@
 
     socket.on('cluster', function (data) {
         console.log("New cluster: ", data);
-        $(".mob").append("<div class='wordwrap'>" + JSON.stringify(data)+ "</div>");
+        $(".mob").append("<div class='wordwrap'>" + JSON.stringify(data) + "</div>");
         //$(".mob").append('<input type="text" name="..." value="" readonly><br>');
 
     });
@@ -60,7 +84,7 @@
     var socket2 = io('http://localhost:3000/mobs');
     socket2.on("connect", function () {
         console.log("Connected to server, sending geo settings..");
-        socket2.emit("settings", {mode: "geo", lat: 1, lon:1, radius: 5000000});
+        socket2.emit("settings", {mode: "geo", lat: 1, lon: 1, radius: 5000000});
     });
 
     socket2.on('mob', function (data) {
@@ -74,20 +98,51 @@
 
     // Registering a listener for live sentiment scores, same idea.
     var socket3 = io('http://localhost:3000/sentiment');
-    socket3.on("connect", function(){
+    socket3.on("connect", function () {
         socket3.emit("settings",
                 {
-                    mode: "geo", lat: 1, lon:1, radius: 50000000 //, pokemonName: "Abra", mode: "all"
+                    mode: "geo", lat: 1, lon: 1, radius: 50000000 //, pokemonName: "Abra", mode: "all"
                 }
         );
     });
 
-    socket3.on("tweet", function (data){
+    socket3.on("tweet", function (data) {
         console.log(data);
         //$(".livetweet").append('<input type="text" name="..." value="'+ JSON.stringify(data) + '" readonly><br>');
-        $(".livetweet").append("<div class='wordwrap'>" + JSON.stringify(data)+ "</div>");
+        $(".livetweet").append("<div class='wordwrap'>" + JSON.stringify(data) + "</div>");
     });
 
+
+    // sample chart
+    var data = {
+        labels: ["January", "February", "March", "April", "May", "June", "July", "August"],
+        datasets: [
+            {
+                label: "My First dataset",
+                fillColor: "rgba(220,220,220,0.5)",
+                strokeColor: "rgba(220,220,220,0.8)",
+                highlightFill: "rgba(220,220,220,0.75)",
+                highlightStroke: "rgba(220,220,220,1)",
+                data: [65, 59, 80, 81, 56, 55, 40, -30]
+            },
+            {
+                label: "My Second dataset",
+                fillColor: "rgba(151,187,205,0.5)",
+                strokeColor: "rgba(151,187,205,0.8)",
+                highlightFill: "rgba(151,187,205,0.75)",
+                highlightStroke: "rgba(151,187,205,1)",
+                data: [-10, 48, 40, 19, 86, 27, 90, -42]
+            }
+        ]
+    };
+
+    var options = {
+        scaleBeginAtZero: false,
+        responsive: true
+    };
+
+    var ctx = document.getElementById("myChart").getContext("2d");
+    var myBarChart = new Chart(ctx).Bar(data, options);
 
 </script>
 </body>
