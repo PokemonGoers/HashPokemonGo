@@ -16,7 +16,7 @@ function SentimentFeed(options) {
                 socket: socket,
                 coordinates: coords,
                 radius: settings.radius || 1000,
-                pokemonName: settings.pokemonName.toLowerCase() || "all"
+                pokemonName: (settings.pokemonName == undefined) ? "all" : settings.pokemonName.toLowerCase()
             };
             moduleExports.listeners.push(listener);
             moduleExports.allPokemonNames[listener.pokemonName] = true; // value is insignificant, we just need a set
