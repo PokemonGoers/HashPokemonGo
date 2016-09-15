@@ -19,6 +19,9 @@ module.exports.sentimentsForPokemonByLocation = function (databaseUrl, pokemonNu
             console.log("Error while connecting to database. " + err);
             throw err;
         } else {
+
+            db.collection('SentimentedTweets').createIndex({coordinates:"2dsphere"});
+
             var startDate = new Date();
             var endDate = new Date();
             endDate.setHours(0, 0, 0, 0);

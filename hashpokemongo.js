@@ -3,10 +3,7 @@
  */
 
 module.exports = {
-    helloWorld: function () {
-        console.log("Hello world.")
-    },
-    mob: require("./mobDetection/mobdetect"),
-    sentimentFeed: require("./sentiment_feed/sentimentFeed")
+    MobDetection: require("./mobDetection/mobdetect"),
+    SentimentFeed: require("./sentiment_feed/sentimentFeed")
 };
 
