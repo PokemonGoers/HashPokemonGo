@@ -23,9 +23,9 @@ module.exports.startTweetsAnalysis = function (twitterClient, databaseUrl) {
             throw err;
         } else {
             console.log("Connected correctly to database.");
-           /* db.collection('SentimentedTweets').createIndex({"coordinates": "2dsphere"});
-            db.collection('SentimentedTweets').createIndex({"pokemonNumber": 1});
-            */
+            /* db.collection('SentimentedTweets').createIndex({"coordinates": "2dsphere"});
+             db.collection('SentimentedTweets').createIndex({"pokemonNumber": 1});
+             */
             database = db;
         }
     });
@@ -47,7 +47,7 @@ module.exports.startTweetsAnalysis = function (twitterClient, databaseUrl) {
         .filter(sentimetedTweet => sentimetedTweet.sentimentScore != 0) // Only take sentiments with more than 0
         .flatMap(sentimetedTweet => saveToDatabase(sentimetedTweet)) // Save sentimented tweets into database
         .retry()
-        .subscribe(next => console.log("onNext: sentiment: " + next.sentimentScore + " : " + next.text),
+        .subscribe(next => console.log("onNext: sentiment: " + next.sentimentScore),
             error => {
                 console.log("onError: " + error);
                 console.log(error.stack);
@@ -167,7 +167,7 @@ function toSentimentedTweet(tweet) {
 
     return {
         twitterId: tweet.id,
-        text: tweet.text,
+        //  text: tweet.text // we dont need the tweet text
         pokemonNumber: tweet.pokemonNumber,
         createdAt: new Date(tweet.created_at),
         sentimentScore: sentimentScore,
