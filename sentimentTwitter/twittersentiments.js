@@ -2,7 +2,6 @@
 var Rx = require("rxjs");
 var sentiment = require("sentiment");
 var MongoClient = require('mongodb').MongoClient;
-var ObjectId = require('mongodb').ObjectID;
 
 
 // Data
@@ -24,13 +23,16 @@ module.exports.startTweetsAnalysis = function (twitterClient, databaseUrl) {
             throw err;
         } else {
             console.log("Connected correctly to database.");
+           /* db.collection('SentimentedTweets').createIndex({"coordinates": "2dsphere"});
+            db.collection('SentimentedTweets').createIndex({"pokemonNumber": 1});
+            */
             database = db;
         }
     });
 
 
     subscription = Rx.Observable.interval(5 * 1000) // run every 18 seconds;  24 seconds for each pokemon to ensure each pokemon has been queried at least once per day
-        .map(counter => pokemons[counter % 151]) // take the pokemon at index
+        .map(counter => pokemons[counter % pokemons.length]) // take the pokemon at index
         .do(pokemon => console.log("Searching tweets for " + pokemon.Name + " (" + pokemon.Number + ")"))
         .flatMap(pokemon => getLastTweetAboutPokemonFromDatabase(pokemon))
         .flatMap(pokemon => {
@@ -44,9 +46,12 @@ module.exports.startTweetsAnalysis = function (twitterClient, databaseUrl) {
         .map(tweet => toSentimentedTweet(tweet)) // Run sentiment anlysis on each Tweet
         .filter(sentimetedTweet => sentimetedTweet.sentimentScore != 0) // Only take sentiments with more than 0
         .flatMap(sentimetedTweet => saveToDatabase(sentimetedTweet)) // Save sentimented tweets into database
-        //.retry()
+        .retry()
         .subscribe(next => console.log("onNext: sentiment: " + next.sentimentScore + " : " + next.text),
-            error => console.log("onError: " + error));
+            error => {
+                console.log("onError: " + error);
+                console.log(error.stack);
+            });
 };
 
 
@@ -106,10 +111,8 @@ function containsHashtag(hashtagsArray, hashtagsToContain) {
         return false;
     }
 
-    var i;
-    var j;
-    for (i = 0; i < hashtagsArray.length; i++) {
-        for (j = 0; j < hashtagsToContain.length; j++) {
+    for (var i = 0; i < hashtagsArray.length; i++) {
+        for (var j = 0; j < hashtagsToContain.length; j++) {
             if (hashtagsArray[i].text.toLowerCase() === hashtagsToContain[j])
                 return true;
         }
@@ -162,21 +165,13 @@ function toSentimentedTweet(tweet) {
 
     var sentimentScore = sentiment(tweet.text).score;
 
-    var coordinates;
-    if (!tweet.coordinates) {
-        coordinates = null;
-    } else {
-        coordinates = tweet.coordinates.coordinates;
-    }
-
-
     return {
         twitterId: tweet.id,
         text: tweet.text,
         pokemonNumber: tweet.pokemonNumber,
         createdAt: new Date(tweet.created_at),
         sentimentScore: sentimentScore,
-        coordinates: coordinates
+        coordinates: tweet.coordinates
     }
 }
 

@@ -10,6 +10,7 @@
     "socket.io": "latest",
     "sentiment": "latest",
     "rxjs": "latest",
-    "mongodb": "latest"
+    "mongodb": "latest",
+    "hashmap": "latest"
   }
 }
