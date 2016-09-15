@@ -33,13 +33,14 @@ module.exports.sentimentsForPokemonByLocation = function (databaseUrl, pokemonNu
                             "createdAt": {'$gte': endDate}
                         },
                         {
-                            "$near": {
-                                "$geometry": {
-                                    "type": "Point",
-                                    "coordinates": [lng, lat]
-                                },
-                                "$maxDistance": 2000, // 2000 meters
-                                "$minDistance": 0
+                            "coordinates": {
+                                "$near": {
+                                    "$geometry": {
+                                        "type": "Point",
+                                        "coordinates": [lng, lat]
+                                    },
+                                    "$maxDistance": 2000
+                                }
                             }
                         }
                     ]
