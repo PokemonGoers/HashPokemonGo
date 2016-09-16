@@ -53,9 +53,13 @@ socket2.on("connect", function(){
 ===============================
 ## Setup / Running standalone demo
 
+Ensure that mongodb server is running locally on your machine and that database with name `/test` is accessible (without authentication / password etc.)
+
 Simply clone the repo, and run `npm install`. To run the server, use
 ```bash
 CONSUMER_KEY=<your_consumer_key> CONSUMER_SECRET=<your_consumer_secret> ACCESS_TOKEN=<your_access_token> ACCESS_TOKEN_SECRET=<your_access_token_secret> npm start
 ```
 
-A demo webapp is also provided: once the server is running, open the `index.html` file in the root of the repository. This will open websockets to the server for live sentiment analysis and cluster/mob detection, and provide an interface to query historic tweet sentiment for different pokemon. The raw returned JSON is shown in the three cloumns.
+A demo webapp is also provided: once the server is running, open `localhost:8080` in your browser for live sentiment analysis and cluster/mob detection, and provide an interface to query historic tweet sentiment for different pokemon.
+
+Keep in mind that for the historic tweet sentiment analysis the server will query for tweets periodically. So you may want to run the server for some minutes so that some data has been mined.
