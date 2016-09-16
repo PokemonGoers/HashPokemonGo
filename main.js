@@ -55,11 +55,62 @@ hashpokemongo.SentimentFeed({io: io}).startSentimentFeed(stream);
  function (error) {
  console.log(error);
  });
+
+
+ twitterSentimentsApi.sentimentsForPokemonByLocation(db, "136", 40.7531, -111.8877, function (data) {
+ console.log("Successfull Location", data);
+ },
+ function (error) {
+ console.log(error);
+ });
+
  */
 
-twitterSentimentsApi.sentimentsForPokemonByLocation(db, "136", 40.7531, -111.8877, function (data) {
-        console.log("Successfull Location", data);
-    },
-    function (error) {
-        console.log(error);
-    });
+//Lets require/import the HTTP module
+var express = require('express');
+var app = express();
+
+app.use(express.static('demo'));
+
+app.get('/sentiments/:pokemonNumber', function (req, res) {
+    try {
+        twitterSentimentsApi.setimentsForPokemon(db, req.params.pokemonNumber, function (data) {
+                console.log("Query Repssone: ", data);
+                res.json(data);
+
+            },
+            function (error) {
+                console.log(error);
+                res.status(500);
+                res.send(error);
+            });
+    } catch (e) {
+        res.status(500);
+        res.send(e);
+    }
+});
+
+app.get('/sentiments/:pokemonNumber/:lat/:lng', function (req, res) {
+    try {
+        twitterSentimentsApi.sentimentsForPokemonByLocation(db, req.params.pokemonNumber, parseFloat(req.params.lat), parseFloat(req.params.lng), function (data) {
+                console.log("Query Repsone: ", data);
+                res.json(data);
+
+            },
+            function (error) {
+                console.log(error);
+                res.status(500);
+                res.send(error);
+            });
+    } catch (e) {
+        res.status(500);
+        res.send(e);
+    }
+});
+
+
+app.listen(8080, function () {
+    console.log('Example app listening on port 3000!');
+});
+
+

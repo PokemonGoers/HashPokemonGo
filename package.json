@@ -6,12 +6,14 @@
   },
   "main": "hashpokemongo.js",
   "dependencies": {
+    "express": "^4.14.0",
+    "hashmap": "latest",
     "moment": "^2.14.1",
-    "twitter": "^1.2.5",
-    "socket.io": "latest",
-    "sentiment": "latest",
-    "rxjs": "latest",
     "mongodb": "latest",
-    "hashmap": "latest"
+    "quip": "^0.1.2",
+    "rxjs": "latest",
+    "sentiment": "latest",
+    "socket.io": "latest",
+    "twitter": "^1.2.5"
   }
 }

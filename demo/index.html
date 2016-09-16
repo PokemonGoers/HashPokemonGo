@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Test HashPokemonGo Websockets</title>
+    <title>HashPokemonGo Demo</title>
 </head>
 <body>
 <style>
@@ -44,23 +44,24 @@
 </div>
 <div class="column-right">
     <h1>Historic sentiment analysis</h1>
-    <div class="sentiment container wordwrap"></div>
-    <input type="text" id="pokemonNumber" placeholder="pokemon number i.e. 025 for Pikachu"/>
-    <input type="text" id="lat" placeholder="latitude"/>
-    <input type="text" id="lng" placeholder="longitude"/>
-    <input type="submit" id="go" />
+    <div class="sentiment container wordwrap">
+        <input type="text" id="pokemonNumber" placeholder="pokemon number i.e. 025 for Pikachu"/>
+        <input type="text" id="lat" placeholder="optional latitude"/>
+        <input type="text" id="lng" placeholder="optional longitude"/>
+        <input type="submit" id="go"/>
+        <p>
+            <canvas id="myChart" width="800" height="500"></canvas>
+        </p>
 
-    <p>
-        <canvas id="myChart" width="500" height="250"></canvas>
-    </p>
+    </div>
 </div>
 <!--script src="/socket.io/socket.io.js"></script-->
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-<script src="https://code.jquery.com/jquery-3.1.0.slim.min.js"></script>
+<script src="http://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk="
+        crossorigin="anonymous"></script>
 <script src="https://cdn.rawgit.com/ahrex/Chart.js/b09a68353e95cbffbd1fae620c1577a0bb74cbf8/Chart.js"></script>
 
 <script>
-
     // Registering a listener for all mobs / clusters
     var socket = io('http://localhost:3000/mobs');
     socket.on('connect', function () {
@@ -113,36 +114,90 @@
     });
 
 
-    // sample chart
-    var data = {
-        labels: ["January", "February", "March", "April", "May", "June", "July", "August"],
-        datasets: [
-            {
-                label: "My First dataset",
-                fillColor: "rgba(220,220,220,0.5)",
-                strokeColor: "rgba(220,220,220,0.8)",
-                highlightFill: "rgba(220,220,220,0.75)",
-                highlightStroke: "rgba(220,220,220,1)",
-                data: [65, 59, 80, 81, 56, 55, 40, -30]
-            },
-            {
-                label: "My Second dataset",
-                fillColor: "rgba(151,187,205,0.5)",
-                strokeColor: "rgba(151,187,205,0.8)",
-                highlightFill: "rgba(151,187,205,0.75)",
-                highlightStroke: "rgba(151,187,205,1)",
-                data: [-10, 48, 40, 19, 86, 27, 90, -42]
-            }
-        ]
-    };
-
     var options = {
         scaleBeginAtZero: false,
         responsive: true
     };
 
-    var ctx = document.getElementById("myChart").getContext("2d");
-    var myBarChart = new Chart(ctx).Bar(data, options);
+    function isFloat(n) {
+        return Number(n) === n && n % 1 !== 0;
+    }
+
+    var myBarChart = null;
+
+
+    var fillChart = function (response) {
+        console.log(response);
+
+        var labels = [];
+        var positives = [];
+        var negatives = [];
+        for (var i = 0; i < response.length; i++) {
+            var day = response[i];
+            var date = new Date(day.date);
+            labels.push(date.getMonth() + "/" + date.getDay());
+            positives.push(day.pos);
+            negatives.push(day.neg)
+        }
+
+        // sample chart
+        var data = {
+            labels: labels,
+            datasets: [
+                {
+                    label: "Positive sentiments",
+                    fillColor: "rgba(220,220,220,0.5)",
+                    strokeColor: "rgba(220,220,220,0.8)",
+                    highlightFill: "rgba(220,220,220,0.75)",
+                    highlightStroke: "rgba(220,220,220,1)",
+                    data: positives
+                },
+                {
+                    label: "Negative sentiments",
+                    fillColor: "rgba(151,187,205,0.5)",
+                    strokeColor: "rgba(151,187,205,0.8)",
+                    highlightFill: "rgba(151,187,205,0.75)",
+                    highlightStroke: "rgba(151,187,205,1)",
+                    data: negatives
+                }
+            ]
+        };
+
+        if (myBarChart != null) {
+            myBarChart.destroy();
+        }
+
+        var ctx = document.getElementById("myChart").getContext("2d");
+        myBarChart = new Chart(ctx).Bar(data, options);
+
+    };
+
+    $("#go").click(function (event) {
+        var pokenumber = $("#pokemonNumber").val();
+        console.log("Pokenumber " + pokenumber);
+        if (pokenumber === "") {
+            window.alert("Please enter a pokenumber like 025 for Pikatchu");
+        } else {
+            var lat = $("#lat").val();
+            var lng = $("#lng").val();
+
+            if (lat !== "" && lng !== "") {
+                // do request
+                $.ajax({
+                    method: "GET",
+                    url: "/sentiments/" + pokenumber + "/" + lat + "/" + lng
+                }).done(fillChart);
+
+            } else {
+
+                $.ajax({
+                    method: "GET",
+                    url: "/sentiments/" + pokenumber
+                }).done(fillChart);
+            }
+        }
+    });
+
 
 </script>
 </body>
