@@ -15,7 +15,7 @@ var database = null;
  * @param twitterClient The preconfigured twitter client
  * @param databaseUrl The url to the database
  */
-module.exports.startTweetsAnalysis = function (twitterClient, databaseUrl) {
+module.exports.start = function (twitterClient, databaseUrl) {
 
     MongoClient.connect(databaseUrl, function (err, db) {
         if (err) {
@@ -33,7 +33,7 @@ module.exports.startTweetsAnalysis = function (twitterClient, databaseUrl) {
 
     subscription = Rx.Observable.interval(5 * 1000) // run every 18 seconds;  24 seconds for each pokemon to ensure each pokemon has been queried at least once per day
         .map(counter => pokemons[counter % pokemons.length]) // take the pokemon at index
-        .do(pokemon => console.log("Searching tweets for " + pokemon.Name + " (" + pokemon.Number + ")"))
+        .do(pokemon => console.log("TweetSentimentsMiner: Searching tweets for " + pokemon.Name + " (" + pokemon.Number + ")"))
         .flatMap(pokemon => getLastTweetAboutPokemonFromDatabase(pokemon))
         .flatMap(pokemon => {
             // Search for tweets and  set lastTweetId to now
@@ -47,7 +47,9 @@ module.exports.startTweetsAnalysis = function (twitterClient, databaseUrl) {
         .filter(sentimetedTweet => sentimetedTweet.sentimentScore != 0) // Only take sentiments with more than 0
         .flatMap(sentimetedTweet => saveToDatabase(sentimetedTweet)) // Save sentimented tweets into database
         .retry()
-        .subscribe(next => console.log("onNext: sentiment: " + next.sentimentScore),
+        .subscribe(next => {
+               // console.log("onNext: sentiment: " + next.sentimentScore)
+            },
             error => {
                 console.log("onError: " + error);
                 console.log(error.stack);
@@ -199,7 +201,7 @@ function saveToDatabase(sentimentedTweet) {
 /**
  * Stops the periodically tweets sentiment analysis
  */
-module.exports.stopTweetsAnalysis = function () {
+module.exports.stop = function () {
     if (subscription != null) {
         subscription.unsubscribe();
     }
