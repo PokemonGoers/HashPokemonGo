@@ -6,6 +6,11 @@
 </head>
 <body>
 <style>
+    .col {
+        float: left;
+        width: 30%;
+    }
+
     .column-left {
         float: left;
         width: 33%;
@@ -31,6 +36,27 @@
         white-space: -pre-wrap; /* Opera <7 */
         white-space: -o-pre-wrap; /* Opera 7 */
         word-wrap: break-word; /* IE */
+    }
+    .data {     
+        margin-bottom: 40px;        
+    }       
+    .user-name {        
+    font-weight: bold;      
+    }       
+    .tweet-text {       
+        margin-bottom: 10px;        
+    }       
+    .coordinates {      
+        margin-bottom: 10px;        
+    }       
+    .red {      
+        color: red;     
+    }       
+    .green {        
+        color: green;       
+    }       
+    .blue {     
+        color: blue;        
     }
 
 </style>
@@ -76,7 +102,7 @@
 
     socket.on('cluster', function (data) {
         console.log("New cluster: ", data);
-        $(".mob").append("<div class='wordwrap'>" + JSON.stringify(data) + "</div>");
+        $(".mob").prepend("<div class='wordwrap'>" + JSON.stringify(data) + "</div>");
         //$(".mob").append('<input type="text" name="..." value="" readonly><br>');
 
     });
@@ -110,7 +136,7 @@
     socket3.on("tweet", function (data) {
         console.log(data);
         //$(".livetweet").append('<input type="text" name="..." value="'+ JSON.stringify(data) + '" readonly><br>');
-        $(".livetweet").append("<div class='wordwrap'>" + JSON.stringify(data) + "</div>");
+        $(".livetweet").prepend("<div class='wordwrap'>" + JSON.stringify(data) + "</div>");
     });
 
 
@@ -192,7 +218,7 @@
 
                 $.ajax({
                     method: "GET",
-                    url: "/sentiments/" + pokenumber
+                    url: "localhost:8080/sentiments/" + pokenumber
                 }).done(fillChart);
             }
         }
