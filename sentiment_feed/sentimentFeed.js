@@ -1,3 +1,16 @@
+var Rx = require("rxjs");
+
+function RxfromIO (io, eventName) {
+    return Rx.Observable.create(observer => {
+        io.on(eventName, (data) => {
+            observer.next(data)
+        });
+        return {
+            dispose: io.close
+        }
+    });
+}
+
 function SentimentFeed(options) {
     var moduleExports = {};
     var io = options.io || require('socket.io')(options.port || 8888);
@@ -35,37 +48,20 @@ function SentimentFeed(options) {
             }
         };
 
-        stream.on('data', function (tweet) {
-            // console.log(JSON.stringify(tweet));
-            console.log(tweet.text);
-            // we definitely need locations
-            if (tweet.coordinates == null) {
-                return;
-            }
-            if (!tweet.user) {
-                return;
-            }
+        var observableStream = RxfromIO(stream, "data");
 
-            var coordsFormatted = "" + tweet.coordinates.coordinates[1] + ", " + tweet.coordinates.coordinates[0];
-            console.log("(sentimentFeed) Got geotagged tweet (" + tweet.text.replace("\n", " ") + ") (" + coordsFormatted + ")!");
-
-            // get sentiment score
-            var sentim = sentiment(tweet.text);
-
-            // simplify tweet format
-            var newTweet = {
+        observableStream
+            .filter(tweet => tweet.coordinates != null && tweet.user)
+            .do(tweet => console.log("(sentimentFeed) Got geotagged tweet (" + tweet.text.replace("\n", " ") + ") (" + tweet.coordinates.coordinates + ")!"))
+            .map(tweet => ({
                 id: tweet.id_str,
                 text: tweet.text,
                 user: tweet.user.screen_name,
                 coordinates: tweet.coordinates.coordinates,
                 timestamp: utils.getTimestamp(tweet.created_at),
-                sentiment: {
-                    score: sentim.score,
-                    comparative: sentim.comparative
-                }
-            };
-            notifyClients(newTweet);
-        });
+                sentiment: sentiment(tweet.text)
+            }))
+            .subscribe(newTweet => notifyClients(newTweet));
     };
     return moduleExports;
 }
