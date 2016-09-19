@@ -14,8 +14,9 @@ var database = null;
  * The value will then be saved into a database
  * @param twitterClient The preconfigured twitter client
  * @param databaseUrl The url to the database
+ * @param mineEveryMilliSeconds The number of seconds to wait before continue to mine the next pokement
  */
-module.exports.start = function (twitterClient, databaseUrl) {
+module.exports.start = function (twitterClient, databaseUrl, mineEveryMilliSeconds) {
 
     MongoClient.connect(databaseUrl, function (err, db) {
         if (err) {
@@ -27,33 +28,33 @@ module.exports.start = function (twitterClient, databaseUrl) {
              db.collection('SentimentedTweets').createIndex({"pokemonNumber": 1});
              */
             database = db;
+
+
+            subscription = Rx.Observable.interval(mineEveryMilliSeconds) // run 2 minutes a pokemon sentiment analysis
+                .map(counter => pokemons[counter % pokemons.length]) // take the pokemon at index
+                .do(pokemon => console.log("TweetSentimentsMiner: Searching tweets for " + pokemon.Name + " (" + pokemon.Number + ")"))
+                .flatMap(pokemon => getLastTweetAboutPokemonFromDatabase(pokemon))
+                .flatMap(pokemon => {
+                    // Search for tweets and  set lastTweetId to now
+                    var emptyArrayObservable = Rx.Observable.from([1]).map(ignored => []); // in case of an network error: return empty array  ... For some streange reason Observable.just() hasn't been found.
+                    return Rx.Observable.onErrorResumeNext(searchTweets(twitterClient, pokemon), emptyArrayObservable);
+
+                })
+                .flatMap(tweets => Rx.Observable.from(tweets)) // Emits ever item from the tweets array one by one to the observable stream
+                .filter(tweet => containsHashtag(tweet.entities.hashtags, ['pokemongo', 'pokemon', 'pokémon'])) // filter tweets containing given hashtags
+                .map(tweet => toSentimentedTweet(tweet)) // Run sentiment anlysis on each Tweet
+                .filter(sentimetedTweet => sentimetedTweet.sentimentScore != 0) // Only take sentiments with more than 0
+                .flatMap(sentimetedTweet => saveToDatabase(sentimetedTweet)) // Save sentimented tweets into database
+                .retry()
+                .subscribe(next => {
+                        // console.log("onNext: sentiment: " + next.sentimentScore)
+                    },
+                    error => {
+                        console.log("onError: " + error);
+                        console.log(error.stack);
+                    });
         }
     });
-
-
-    subscription = Rx.Observable.interval(5 * 60 * 1000) // run 2 minutes a pokemon sentiment analysis
-        .map(counter => pokemons[counter % pokemons.length]) // take the pokemon at index
-        .do(pokemon => console.log("TweetSentimentsMiner: Searching tweets for " + pokemon.Name + " (" + pokemon.Number + ")"))
-        .flatMap(pokemon => getLastTweetAboutPokemonFromDatabase(pokemon))
-        .flatMap(pokemon => {
-            // Search for tweets and  set lastTweetId to now
-            var emptyArrayObservable = Rx.Observable.from([1]).map(ignored => []); // in case of an network error: return empty array  ... For some streange reason Observable.just() hasn't been found.
-            return Rx.Observable.onErrorResumeNext(searchTweets(twitterClient, pokemon), emptyArrayObservable);
-
-        })
-        .flatMap(tweets => Rx.Observable.from(tweets)) // Emits ever item from the tweets array one by one to the observable stream
-        .filter(tweet => containsHashtag(tweet.entities.hashtags, ['pokemongo', 'pokemon', 'pokémon'])) // filter tweets containing given hashtags
-        .map(tweet => toSentimentedTweet(tweet)) // Run sentiment anlysis on each Tweet
-        .filter(sentimetedTweet => sentimetedTweet.sentimentScore != 0) // Only take sentiments with more than 0
-        .flatMap(sentimetedTweet => saveToDatabase(sentimetedTweet)) // Save sentimented tweets into database
-        .retry()
-        .subscribe(next => {
-               // console.log("onNext: sentiment: " + next.sentimentScore)
-            },
-            error => {
-                console.log("onError: " + error);
-                console.log(error.stack);
-            });
 };
 
 
