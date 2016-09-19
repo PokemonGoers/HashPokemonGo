@@ -4,6 +4,8 @@
 
 module.exports = {
     MobDetection: require("./mobDetection/mobdetect"),
-    SentimentFeed: require("./sentiment_feed/sentimentFeed")
+    SentimentFeed: require("./sentiment_feed/sentimentFeed"),
+    TwitterSentiments: require("./sentimentTwitter/twittersentimentApi"),
+    TwitterSentimentsMiner: require("./sentimentTwitter/TwitterSentimentsMiner")
 };
 

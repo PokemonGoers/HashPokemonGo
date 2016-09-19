@@ -2,6 +2,19 @@
 /**
  * Created by dowling on 28/08/16.
  */
+var Rx = require("rxjs");
+
+function RxfromIO (io, eventName) {
+    return Rx.Observable.create(observer => {
+            io.on(eventName, (data) => {
+            observer.next(data)
+});
+    return {
+        dispose: io.close
+    }
+});
+}
+
 
 function MobDetection(options){
     var moduleExports = {};
@@ -104,75 +117,62 @@ function MobDetection(options){
             }
         };
 
-        stream.on('data', function(tweet) {
-            // console.log(JSON.stringify(tweet));
-            // we definitely need locations
-            if (tweet.coordinates == null){
-                return;
-            }
-            if (!tweet.user) {
-                return;
-            }
-
-            var now = Math.floor(Date.now() / 1000);
-
-            // clear out expired clusters
-            for (var clusterId in moduleExports.clusters) {
-                if (moduleExports.clusters.hasOwnProperty(clusterId)) {
-                    if (now - moduleExports.clusters[clusterId].timestamp > maxClusterAge){
-                        delete moduleExports.clusters[clusterId];
-                        console.log("Deleted cluster " + clusterId + " due to time expiration.");
-                    }
+        // clear out expired clusters
+        var clearOldClusters = function(tweet) {
+            let now = Math.floor(Date.now() / 1000);
+            for (var clusterId in  Object.getOwnPropertyNames(moduleExports.clusters)) {
+                if (now - moduleExports.clusters[clusterId].timestamp > maxClusterAge) {
+                    delete moduleExports.clusters[clusterId];
+                    console.log("Deleted cluster " + clusterId + " due to time expiration.");
                 }
             }
+        };
 
-            var coordsFormatted = "" + tweet.coordinates.coordinates[1] + ", " + tweet.coordinates.coordinates[0];
-            console.log("(mobDetect) Got geotagged tweet (" + tweet.text.replace("\n", " ") + ") (" + coordsFormatted +")!");
-
-            // simplify tweet format
-            var newTweet = {
-                id: tweet.id_str,
-                text: tweet.text,
-                user: tweet.user.screen_name,
-                coordinates: tweet.coordinates.coordinates,
-                timestamp: utils.getTimestamp(tweet.created_at)
-            };
-
-            // see if the new tweet should be merged to any existing cluster TODO: if needed, speed up with a geo index
-            for (clusterId in moduleExports.clusters){
-                if (moduleExports.clusters.hasOwnProperty(clusterId)){
-                    var cluster = moduleExports.clusters[clusterId];
-                    var dist = utils.haversineDistance(cluster.coordinates, newTweet.coordinates);
-                    if (dist < maxDistanceThreshold){
-                        console.log("Merging tweet with cluster " + clusterId +"!");
-                        cluster = merge(cluster, newTweet);  // TODO: we need to incorporate number of users (one person should not be a mob)
-                        moduleExports.clusters[clusterId] = cluster;
-
-                        notifyClients(moduleExports.clusters[clusterId], "cluster");
-                        if(cluster.isMob){
-                            notifyClients(moduleExports.clusters[moduleExports.maxClusterId], "mob");
-                        }
-
-                        return;
-                    }
+        var mergeToOrCreateCluster = function(newTweet){
+            console.log("mergeOrCreate called");
+            for (let clusterId in Object.getOwnPropertyNames(moduleExports.clusters)){
+                var cluster = moduleExports.clusters[clusterId];
+                if(!cluster){
+                    continue;
+                }
+                var dist = utils.haversineDistance(cluster.coordinates, newTweet.coordinates);
+                if (dist < maxDistanceThreshold){
+                    console.log("Merging tweet with cluster " + clusterId +"!");
+                    moduleExports.clusters[clusterId] = merge(cluster, newTweet);
+                    return moduleExports.clusters[clusterId];
                 }
             }
-
             // if we didn't merge, create a new cluster
-            moduleExports.clusters[moduleExports.maxClusterId] = {
+            var finalCluster = moduleExports.clusters[moduleExports.maxClusterId] = {
                 tweets: [newTweet],
                 coordinates: newTweet.coordinates,
                 timestamp: newTweet.timestamp, // timestamp of last tweet in cluster
                 isMob: false,
                 clusterId: moduleExports.maxClusterId
             };
-            notifyClients(moduleExports.clusters[moduleExports.maxClusterId], "cluster");
-
             console.log("Created new cluster " + moduleExports.maxClusterId);
-
-            // increment ID for next cluster
             moduleExports.maxClusterId += 1;
-        });
+
+            return finalCluster;
+        };
+
+        var observableStream = RxfromIO(stream, "data");
+
+        observableStream
+            .filter(tweet => tweet.coordinates != null && tweet.user)
+        .do(clearOldClusters)
+            .do(tweet => console.log("(mobDetect) Got geotagged tweet (" + tweet.text.replace("\n", " ") + ") (" + tweet.coordinates.coordinates +")!"))
+        .map(tweet => (
+        {
+            id: tweet.id_str,
+            text: tweet.text,
+            user: tweet.user.screen_name,
+            coordinates: tweet.coordinates.coordinates,
+            timestamp: utils.getTimestamp(tweet.created_at)
+        }))
+        .map(mergeToOrCreateCluster)
+            .subscribe(cluster => notifyClients(cluster, cluster.isMob ? "mob": "cluster"));
+
 
         stream.on('error', function (event) {
             onError(event);
