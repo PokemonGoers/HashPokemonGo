@@ -37,6 +37,7 @@ function SentimentFeed(options) {
 
         stream.on('data', function (tweet) {
             // console.log(JSON.stringify(tweet));
+            console.log(tweet.text);
             // we definitely need locations
             if (tweet.coordinates == null) {
                 return;

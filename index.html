@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test HashPokemonGo Websockets</title>
+</head>
+<body>
+<style>
+    .col {
+        float: left;
+        width: 30%;
+        padding: 1.5%;
+    }
+    .container {
+        width: 100%;
+    }
+    .wordwrap {
+        white-space: pre-wrap;      /* CSS3 */
+        white-space: -moz-pre-wrap; /* Firefox */
+        white-space: -pre-wrap;     /* Opera <7 */
+        white-space: -o-pre-wrap;   /* Opera 7 */
+        word-wrap: break-word;      /* IE */
+    }
+    .data {
+        margin-bottom: 40px;
+    }
+    .user-name {
+    font-weight: bold;
+    }
+    .tweet-text {
+        margin-bottom: 10px;
+    }
+    .coordinates {
+        margin-bottom: 10px;
+    }
+    .red {
+        color: red;
+    }
+    .green {
+        color: green;
+    }
+    .blue {
+        color: blue;
+    }
+
+</style>
+
+<div class="col column-left">
+    <h1>Live tweet sentiment</h1>
+    <div class="livetweet container"></div>
+</div>
+
+<div class="col column-center">
+    <h1>Live mob detection</h1>
+    <div class="mob container"></div>
+</div>
+
+<div class="col column-right">
+    <h1>Historic sentiment analysis</h1>
+    <div class="sentiment container wordwrap"></div>
+</div>
+<!--script src="/socket.io/socket.io.js"></script-->
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.0.slim.min.js"></script>
+
+<script>
+
+    // Registering a listener for all mobs / clusters
+    var socket = io('http://localhost:3000/mobs');
+    socket.on('connect', function () {
+        console.log("Connected to server, sending settings for listening to all clusters..");
+        socket.emit("settings", {mode: "all"});
+    });
+
+    socket.on('mob', function (data) {
+        console.log("Mob spotted!", data);
+
+    });
+
+    socket.on('cluster', function (data) {
+        console.log("New cluster: ", data);
+        $(".mob").append("<div class='data wordwrap'>" + JSON.stringify(data)+ "</div>");
+        //$(".mob").append('<input type="text" name="..." value="" readonly><br>');
+
+    });
+
+    // Registering a listener for some "local" mobs / clusters
+    var socket2 = io('http://localhost:3000/mobs');
+    socket2.on("connect", function () {
+        console.log("Connected to server, sending geo settings..");
+        socket2.emit("settings", {mode: "geo", lat: 1, lon:1, radius: 5000000});
+    });
+
+    socket2.on('mob', function (data) {
+        console.log("Geo Mob spotted!", data);
+    });
+
+    socket2.on('cluster', function (data) {
+        console.log("New geo cluster: ", data);
+    });
+
+
+    // Registering a listener for live sentiment scores, same idea.
+    var socket3 = io('http://localhost:3000/sentiment');
+    socket3.on("connect", function(){
+        socket3.emit("settings",
+                {
+                    mode: "geo", lat: 1, lon:1, radius: 50000000 //, pokemonName: "Abra", mode: "all"
+                }
+        );
+    });
+
+    socket3.on("tweet", function (data){
+        console.log(data);
+        var scoreColor;
+        if (parseInt(data.sentiment.score) > 0) {
+            scoreColor = "green";
+        } else if (parseInt(data.sentiment.score) < 0) {
+            scoreColor = "red";
+        } else {
+            scoreColor = "blue";
+        }
+        var comparativeColor;
+        if (parseInt(data.sentiment.score) > 0) {
+            comparativeColor = "green";
+        } else if (parseInt(data.sentiment.score) < 0) {
+            comparativeColor = "red";
+        } else {
+            comparativeColor = "blue";
+        }
+        //$(".livetweet").append('<input type="text" name="..." value="'+ JSON.stringify(data) + '" readonly><br>');
+        $(".livetweet").append(
+            "<div class='data wordwrap'>" +
+                "<div class='user-name'>" + data.user + "</div>" + 
+                "<div class='tweet-text'>" + data.text + "</div>" +
+                "<div class='coordinates'>coordinates: (" + data.coordinates[0] + ", " + data.coordinates[1] + ")</div>" +
+                "<div class='sentiment score " + scoreColor + "'>score: " + data.sentiment.score + "</div>" +
+                "<div class='sentiment comparative " + comparativeColor + "'>comparative: " + data.sentiment.comparative + "</div>" +
+            "</div>"
+        );
+
+    });
+
+
+</script>
+</body>
+</html>
