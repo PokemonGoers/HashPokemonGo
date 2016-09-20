@@ -81,7 +81,6 @@
         console.log("New cluster: ", data);
         $(".mob").append("<div class='data wordwrap'>" + JSON.stringify(data)+ "</div>");
         //$(".mob").append('<input type="text" name="..." value="" readonly><br>');
-
     });
 
     // Registering a listener for some "local" mobs / clusters
@@ -103,11 +102,9 @@
     // Registering a listener for live sentiment scores, same idea.
     var socket3 = io('http://localhost:3000/sentiment');
     socket3.on("connect", function(){
-        socket3.emit("settings",
-                {
-                    mode: "geo", lat: 1, lon:1, radius: 50000000 //, pokemonName: "Abra", mode: "all"
-                }
-        );
+        socket3.emit("settings", {
+            mode: "geo", lat: 1, lon:1, radius: 50000000 //, pokemonName: "Abra", mode: "all"
+        });
     });
 
     socket3.on("tweet", function (data){
