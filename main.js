@@ -42,6 +42,7 @@ var mobOptions = {
 
 
 hashpokemongo.SentimentFeed({io: io}).startSentimentFeed(stream);
+hashpokemongo.MobDetection({io: io}).startPokeMobDetection(stream);
 
 hashpokemongo.MobDetection(mobOptions).startPokeMobDetection(stream, function (error) {
     console.log(error);
