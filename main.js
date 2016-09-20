@@ -42,7 +42,9 @@ var mobOptions = {
 
 
 hashpokemongo.SentimentFeed({io: io}).startSentimentFeed(stream);
-hashpokemongo.MobDetection({io: io}).startPokeMobDetection(stream);
+hashpokemongo.MobDetection({io: io}).startPokeMobDetection(stream, function(error) {
+    console.log(error);
+});
 
 //Lets require/import the HTTP module
 var express = require('express');

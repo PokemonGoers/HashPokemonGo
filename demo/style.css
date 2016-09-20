@@ -18,9 +18,12 @@
 .data {     
     margin-bottom: 40px;        
 }       
-.user-name {        
+.livetweet .user-name {        
 font-weight: bold;      
-}       
+}
+.cluster-size {
+    font-weight: bold;
+}  
 .tweet-text {       
     margin-bottom: 10px;        
 }       

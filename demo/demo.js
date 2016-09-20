@@ -18,14 +18,15 @@ socket.on('cluster', function (data) {
     var tweetList = "";
     for (let i = 0; i < data.tweets.length; ++i) {
         tweetList += "<div class='mob-tweet'>" +
-                        "<div class='user-name'>" + data.user + "</div>" + 
-                        "<div class='tweet-text'>" + data.text + "</div>" +
+                        "<div class='user-name'>" + data.tweets[i].user + "</div>" + 
+                        "<div class='tweet-text'>" + data.tweets[i].text + "</div>" +
                     "</div>";
     }
 
     $(".mob").prepend(
         "<div class='data wordwrap'>" +
-          "<div class='cluster-id'>Cluster ID:" + data.clusterId + " " + type + "</div>" +
+          "<div class='cluster-size'>Size: " + data.tweets.length + "</div>" +
+          "<div class='cluster-id'>Cluster ID: " + data.clusterId + " " + type + "</div>" +
           "<div class='coordinates'>coordinates: (" + data.coordinates[0] + ", " + data.coordinates[1] + ")</div>" +
           "<div class='mob-tweet-container'>" + tweetList + "</div>" +
         "</div>"
