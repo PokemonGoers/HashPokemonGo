@@ -46,7 +46,6 @@ hashpokemongo.MobDetection({io: io}).startPokeMobDetection(stream, function(erro
     console.log(error);
 });
 
-
 //Lets require/import the HTTP module
 var express = require('express');
 var app = express();

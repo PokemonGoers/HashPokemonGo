@@ -1,0 +1,41 @@
+.container {
+    width: 100%;
+}
+
+.col {
+    width:30%;
+    margin: 1.5%;
+    float: left;
+}
+
+.wordwrap {
+    white-space: pre-wrap; /* CSS3 */
+    white-space: -moz-pre-wrap; /* Firefox */
+    white-space: -pre-wrap; /* Opera <7 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* IE */
+}
+.data {     
+    margin-bottom: 40px;        
+}       
+.livetweet .user-name {        
+font-weight: bold;      
+}
+.cluster-size {
+    font-weight: bold;
+}  
+.tweet-text {       
+    margin-bottom: 10px;        
+}       
+.coordinates {      
+    margin-bottom: 10px;        
+}       
+.red {      
+    color: red;     
+}       
+.green {        
+    color: green;       
+}       
+.blue {     
+    color: blue;        
+}
