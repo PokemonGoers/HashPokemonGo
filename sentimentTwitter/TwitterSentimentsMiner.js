@@ -8,22 +8,23 @@ var MongoClient = require('mongodb').MongoClient;
 var pokemons = require('./pokemons');
 var subscription = null;
 var database = null;
-
+var logging = false;
 /**
  * Periocially check for tweets on twitter and runs sentiment analysis on those tweets.
  * The value will then be saved into a database
  * @param twitterClient The preconfigured twitter client
  * @param databaseUrl The url to the database
  * @param mineEveryMilliSeconds The number of seconds to wait before continue to mine the next pokement
+ * @param log true or false if you want to do some command line logging
  */
-module.exports.start = function (twitterClient, databaseUrl, mineEveryMilliSeconds) {
-
+module.exports.start = function (twitterClient, databaseUrl, mineEveryMilliSeconds, log) {
+    logging = log;
     MongoClient.connect(databaseUrl, function (err, db) {
         if (err) {
-            console.log("Error while connecting to database. " + err);
+            if (logging) console.log("HashMiner: Error while connecting to database. " + err);
             throw err;
         } else {
-            console.log("Connected correctly to database.");
+            if (logging) console.log("HashMiner: Connected correctly to database.");
             /* db.collection('SentimentedTweets').createIndex({"coordinates": "2dsphere"});
              db.collection('SentimentedTweets').createIndex({"pokemonNumber": 1});
              */
@@ -32,7 +33,9 @@ module.exports.start = function (twitterClient, databaseUrl, mineEveryMilliSecon
 
             subscription = Rx.Observable.interval(mineEveryMilliSeconds) // run 2 minutes a pokemon sentiment analysis
                 .map(counter => pokemons[counter % pokemons.length]) // take the pokemon at index
-                .do(pokemon => console.log("TweetSentimentsMiner: Searching tweets for " + pokemon.Name + " (" + pokemon.Number + ")"))
+                .do(pokemon => {
+                    if (logging) console.log("HashMiner: TweetSentimentsMiner: Searching tweets for " + pokemon.Name + " (" + pokemon.Number + ")")
+                })
                 .flatMap(pokemon => getLastTweetAboutPokemonFromDatabase(pokemon))
                 .flatMap(pokemon => {
                     // Search for tweets and  set lastTweetId to now
@@ -47,11 +50,13 @@ module.exports.start = function (twitterClient, databaseUrl, mineEveryMilliSecon
                 .flatMap(sentimetedTweet => saveToDatabase(sentimetedTweet)) // Save sentimented tweets into database
                 .retry()
                 .subscribe(next => {
-                        // console.log("onNext: sentiment: " + next.sentimentScore)
+                        if (logging) console.log("HashMiner: saved sentiment: " + JSON.stringify(next))
                     },
                     error => {
-                        console.log("onError: " + error);
-                        console.log(error.stack);
+                        if (logging) {
+                            console.log("HashMiner: onError: " + error);
+                            console.log(error.stack);
+                        }
                     });
         }
     });
@@ -76,11 +81,15 @@ function searchTweets(twitterClient, pokemon) {
             lang: 'en',
             count: 100
         };
+
+        // if (logging) console.log("HashMiner: " + JSON.stringify(searchArguments));
+
         twitterClient.get('search/tweets', searchArguments, function (error, tweets, response) {
 
             if (error) {
                 // Error
                 observer.error("Error");
+                if (logging) console.log("HashMiner: Twitter response error");
 
             } else {
                 // Successful
@@ -94,6 +103,7 @@ function searchTweets(twitterClient, pokemon) {
                     tweet.pokemonNumber = pokemon.Number;
                     tweetArray.push(tweet);
                 }
+                // if (logging) console.log("HashMiner: Twitter response received");
                 observer.next(tweetArray);
                 observer.complete();
             }
@@ -131,11 +141,13 @@ function containsHashtag(hashtagsArray, hashtagsToContain) {
  */
 function getLastTweetAboutPokemonFromDatabase(pokemon) {
     return Rx.Observable.create(observer => {
+
         var cursor = database.collection('SentimentedTweets').find({"pokemonNumber": pokemon.Number}).sort({"createdAt": -1}).limit(1);
         cursor.count().then(function (size) {
             if (size == 0) {
                 pokemon.lastTweetId = null;
                 observer.next(pokemon);
+                if (logging) console.log("HashMiner: no last sentimented tweet found (Maybe running first time)");
             } else {
                 cursor.forEach(function (doc, err) {
                     if (err == null) {
@@ -144,15 +156,25 @@ function getLastTweetAboutPokemonFromDatabase(pokemon) {
                         } else {
                             pokemon.lastTweetId = null; // This case should already be covered with cursor.count() == 0 above
                         }
+
+                        // if (logging) console.log("HashMiner: last tweet is: " + pokemon.lastTweetId);
                         observer.next(pokemon);
                         observer.complete();
                     } else {
                         observer.error(err);
+                        if (logging) {
+                            console.log("HashMiner: error while getting last tweet from dattabase: " + error);
+                            console.log(error);
+                        }
                     }
                 });
             }
         }, function (error) {
             observer.error(err);
+            if (logging) {
+                console.log("HashMiner: DATABASE error while getting last tweet from database : " + error);
+                console.log(error);
+            }
         });
 
     });
@@ -190,9 +212,11 @@ function saveToDatabase(sentimentedTweet) {
 
         database.collection('SentimentedTweets').insertOne(sentimentedTweet, function (err2, db) {
             if (err2 == null) {
+                // if (logging) console.log("HashMiner: saved sentimented Tweet to database");
                 observer.next(sentimentedTweet);
                 observer.complete();
             } else {
+                if (logging) console.log("HashMiner: error saving sentimented Tweet to database");
                 observer.error(err2);
             }
         });

@@ -18,7 +18,7 @@ var options = {
 var client = new Twitter(options);
 var db = "mongodb://localhost:27017/test";
 
-hashpokemongo.TwitterSentimentsMiner.start(client, db, 5 * 1000); // Mine every 5 seconds
+hashpokemongo.TwitterSentimentsMiner.start(client, db, 5 * 1000, true); // Mine every 5 seconds
 
 
 var pokemonSearchTerms = 'caught #pokemongo,saw #pokemongo,found #pokemongo,appeared #pokemongo,attacked #pokemongo,pokemon catch,pokemon saw,pokemon attack,pokemon find,pokemon caught,pokemon attacked,pokemon found,pokemon appeared,#foundPokemon,#caughtPokemon,#pokemongo,a wild appeared until #pokemongo';
