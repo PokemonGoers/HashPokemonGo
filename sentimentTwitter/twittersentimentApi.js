@@ -25,7 +25,7 @@ module.exports.sentimentsForPokemonByLocation = function (databaseUrl, pokemonNu
             var startDate = new Date();
             var endDate = new Date();
             endDate.setHours(0, 0, 0, 0);
-            endDate.setDate(startDate.getDate() - 30); // Last 30 days
+            endDate.setDate(startDate.getDate() - 7); // Last 30 days
 
             queryTweetsForPokemon(db, {
                     "$and": [
@@ -82,9 +82,10 @@ module.exports.setimentsForPokemon = function (databaseUrl, pokemonNumber, succe
             throw err;
         } else {
             var startDate = new Date();
+            startDate.setDate(startDate.getDate() + 1);
             var endDate = new Date();
             endDate.setHours(0, 0, 0, 0);
-            endDate.setDate(startDate.getDate() - 30); // Last 30 days
+            endDate.setDate(startDate.getDate() - 7); // Last 30 days
 
             queryTweetsForPokemon(db, {
                     $and: [
