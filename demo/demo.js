@@ -89,8 +89,10 @@ socket3.on("tweet", function (data) {
 
 
 var options = {
-    scaleBeginAtZero: false,
-    responsive: true
+    // scaleBeginAtZero: true,
+    responsive: true,
+    datasetFill: false,
+    bezierCurve: false
 };
 
 function isFloat(n) {
@@ -98,6 +100,40 @@ function isFloat(n) {
 }
 
 var myBarChart = null;
+Chart.types.Line.extend({
+    name: "LineAlt",
+    draw: function () {
+        Chart.types.Line.prototype.draw.apply(this, arguments);
+
+        var ctx = this.chart.ctx;
+        var scale = this.scale;
+
+        ctx.save();
+
+        ctx.fillStyle = this.datasets[0].fillColor;
+        ctx.beginPath();
+        ctx.moveTo(scale.calculateX(0), scale.calculateY(0))
+        this.datasets[0].points.forEach(function (point) {
+            ctx.lineTo(point.x, point.y);
+        })
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = this.datasets[1].fillColor;
+        ctx.beginPath();
+        ctx.moveTo(scale.calculateX(0), scale.calculateY(0))
+        this.datasets[1].points.forEach(function (point) {
+            ctx.lineTo(point.x, point.y);
+        })
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+    }
+});
+
+
+
 
 
 var fillChart = function (response) {
@@ -109,7 +145,7 @@ var fillChart = function (response) {
     for (var i = 0; i < response.length; i++) {
         var day = response[i];
         var date = new Date(day.date);
-        labels.push(date.getMonth() + "/" + date.getDay());
+        labels.push((date.getMonth() + 1) + "/" + date.getDate());
         positives.push(day.pos);
         negatives.push(day.neg)
     }
@@ -119,20 +155,20 @@ var fillChart = function (response) {
         labels: labels,
         datasets: [
             {
-                label: "Positive sentiments",
-                fillColor: "rgba(220,220,220,0.5)",
-                strokeColor: "rgba(220,220,220,0.8)",
-                highlightFill: "rgba(220,220,220,0.75)",
-                highlightStroke: "rgba(220,220,220,1)",
-                data: positives
+                label: "Negative",
+                fillColor: "rgba(220,18,20,0.5)",
+                strokeColor: "rgba(220,18,20,0.8)",
+                highlightFill: "rgba(220,18,20,0.75)",
+                highlightStroke: "rgba(220,18,20,1)",
+                data: negatives
             },
             {
-                label: "Negative sentiments",
-                fillColor: "rgba(151,187,205,0.5)",
-                strokeColor: "rgba(151,187,205,0.8)",
-                highlightFill: "rgba(151,187,205,0.75)",
-                highlightStroke: "rgba(151,187,205,1)",
-                data: negatives
+                label: "Positive",
+                fillColor: "rgba(22,220,22,0.5)",
+                strokeColor: "rgba(22,220,22,0.8)",
+                highlightFill: "rgba(22,220,22,0.75)",
+                highlightStroke: "rgba(22,220,22,1)",
+                data: positives
             }
         ]
     };
@@ -142,7 +178,7 @@ var fillChart = function (response) {
     }
 
     var ctx = document.getElementById("myChart").getContext("2d");
-    myBarChart = new Chart(ctx).Bar(data, options);
+    myBarChart = new Chart(ctx).LineAlt(data, options);
 
 };
 
@@ -166,7 +202,7 @@ $("#go").click(function (event) {
 
             $.ajax({
                 method: "GET",
-                url: "localhost:8080/sentiments/" + pokenumber
+                url: "/sentiments/" + pokenumber
             }).done(fillChart);
         }
     }
