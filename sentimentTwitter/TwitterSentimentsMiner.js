@@ -19,6 +19,9 @@ var logging = false;
  */
 module.exports.start = function (twitterClient, databaseUrl, mineEveryMilliSeconds, log) {
     logging = log;
+    if (logging) {
+        console.log("HashMiner: Trying to connect to: " + databaseUrl);
+    }
     MongoClient.connect(databaseUrl, function (err, db) {
         if (err) {
             if (logging) console.log("HashMiner: Error while connecting to database. " + err);

@@ -1,6 +1,6 @@
 {
   "name": "hashpokemongo",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "scripts": {
     "start": "node $NODE_DEBUG_OPTION main.js"
   },

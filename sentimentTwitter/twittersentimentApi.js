@@ -3,6 +3,8 @@ var Rx = require("rxjs");
 var MongoClient = require('mongodb').MongoClient;
 var HashMap = require('HashMap');
 
+var logging = true;
+
 
 /**
  * Get sentiments for a certain pokemon nearby (2000 meters) of a certain location of the last 30 days for a certain pokemon
@@ -20,7 +22,7 @@ module.exports.sentimentsForPokemonByLocation = function (databaseUrl, pokemonNu
             throw err;
         } else {
 
-            db.collection('SentimentedTweets').createIndex({coordinates:"2dsphere"});
+            db.collection('SentimentedTweets').createIndex({coordinates: "2dsphere"});
 
             var startDate = new Date();
             var endDate = new Date();
@@ -55,6 +57,10 @@ module.exports.sentimentsForPokemonByLocation = function (databaseUrl, pokemonNu
                 .subscribe(
                     data => successCallback(data),
                     error => {
+                        if (logging) {
+                            console.log("HashPokemon: error while getting sentimented tweets");
+                            console.log(error);
+                        }
                         errorCallback(error);
                         db.close();
                     },
@@ -104,6 +110,10 @@ module.exports.setimentsForPokemon = function (databaseUrl, pokemonNumber, succe
                 .subscribe(
                     data => successCallback(data),
                     error => {
+                        if (logging) {
+                            console.log("HashPokemon: error while getting sentimented tweets");
+                            console.log(error);
+                        }
                         errorCallback(error);
                         db.close();
                     },
