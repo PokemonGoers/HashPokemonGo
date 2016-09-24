@@ -53,6 +53,7 @@ var app = express();
 app.use(express.static('demo'));
 
 app.get('/sentiments/:pokemonNumber', function (req, res) {
+    console.log("Get pokemon sentiments");
     try {
         hashpokemongo.TwitterSentiments.setimentsForPokemon(db, req.params.pokemonNumber, function (data) {
                 console.log("Query Repssone: ", data);

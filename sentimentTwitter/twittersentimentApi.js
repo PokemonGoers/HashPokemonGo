@@ -1,7 +1,7 @@
 // libs
 var Rx = require("rxjs");
 var MongoClient = require('mongodb').MongoClient;
-var HashMap = require('HashMap');
+var HashMap = require('hashmap');
 
 var logging = true;
 
